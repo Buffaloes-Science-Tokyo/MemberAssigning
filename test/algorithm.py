@@ -8,6 +8,11 @@ import math
 pl.Config.set_tbl_rows(-1)
 pl.Config.set_tbl_cols(-1)
 
+SCORE_PERFECT = 2
+SCORE_SUBSTITUTE = 1
+SCORE_UNASSINED = -1
+SCORE_THRESHOLD = 0
+
 class Person:
 
     # pos = 0 ~ 10
@@ -91,7 +96,8 @@ def load():
     return input_data
 
 
-def get_candidate_members(persons : dict[str,Person], available_list : list[set[str]], fixed_list : list[str] = [""]*11) -> pl.DataFrame:
+def get_candidate_members(persons : dict[str,Person], available_list : list[set[str]], main_members : list[str], sub_members : list[set[str]], fixed_list : list[str] = [""]*11) -> pl.DataFrame:
+    score = 0
     current_lineup = fixed_list
     assigned : set[str] = set([])
     unassigned : set[int] = set([])
@@ -100,9 +106,14 @@ def get_candidate_members(persons : dict[str,Person], available_list : list[set[
     else:
         for i in range(11):
             if fixed_list[i] == "":
-                unassigned.add(i) # 既に選んでいるメンバー
+                unassigned.add(i) # 未選択のポジション
             else:
-                assigned.add(fixed_list[i]) # 未選択のポジション
+                assigned.add(fixed_list[i]) # 既に選んでいるメンバー
+                if main_members[i] == fixed_list[i]:
+                    score += SCORE_PERFECT
+                elif fixed_list[i] in sub_members[i]:
+                    score += SCORE_SUBSTITUTE
+
 
     def get_expected_process_time(unassigned : set[int]) -> float:
         cnt = 1    
@@ -115,28 +126,34 @@ def get_candidate_members(persons : dict[str,Person], available_list : list[set[
 
     candidate_members = [] # 考えられるメンバーの組
 
-    def DFS(current_lineup : list[str], assigned : set[str], unassigned : set[int]):
-        while unassigned:
-            i = next(iter(unassigned)) # 未選択のポジションを1つ選ぶ(全部で回すと同じ組み合わせが順番違いで重複生成される)
+    def DFS(current_lineup : list[str], assigned : set[str], unassigned : set[int], score : int):
+        remove_set : set[int] = set([])
+        i = 0
+        for j in unassigned: # 未選択のポジションを1つ選ぶ(全部で回すと同じ組み合わせが順番違いで重複生成される)
+            i = j
             if len(available_list[i]) > 0:
                 break
             else:
-                unassigned.remove(i)
+                remove_set.add(i)
+                score += SCORE_UNASSINED
         if len(unassigned) == 0:
-            candidate_members.append(current_lineup)
+            if score > SCORE_THRESHOLD:
+                candidate_members.append(current_lineup + [score])
             return
-        rest_unassigned = unassigned - {i}
+        remove_set.add(i)
+        rest_unassigned = unassigned - remove_set
         for possible_member in available_list[i]: # そのポジションに携われるメンバー
             if not possible_member in assigned and persons[possible_member].status: # すでに選ばれているメンバーでない＋インできるから選択できる
                 next_lineup = current_lineup.copy()
                 next_lineup[i] = possible_member
-                DFS(next_lineup, assigned | {possible_member}, rest_unassigned)
+                DFS(next_lineup, assigned | {possible_member}, rest_unassigned, score + (SCORE_PERFECT if main_members[i] == possible_member else (SCORE_SUBSTITUTE if possible_member in sub_members[i] else 0)))
+        DFS(current_lineup,assigned,rest_unassigned,score + SCORE_UNASSINED) # 選択しないパターンも
 
-    DFS(current_lineup,assigned,unassigned)
+    DFS(current_lineup,assigned,unassigned,score)
     
     return pl.DataFrame(
         data=candidate_members,
-        schema=list(map(str,range(11))),
+        schema=list(map(str,range(11)))+["score"],
         orient="row"
     )
 
@@ -146,6 +163,20 @@ Persons : dict[str,Person] = {}
 availabe_list : list[set(str)] = []
 fixed_members : list[str] = []
 candidate_members : pl.DataFrame = []
+main_members : list[str] = ["Liam","Wyatt","Quinn","Mason","Trevor","Paul","Aaron","Oscar","Kevin","Ryan","Albert"]
+sub_members : list[set[str]] = [
+    set(["Wyatt"]),
+    set([]),
+    set([]),
+    set([]),
+    set([]),
+    set(["Mason"]),
+    set([]),
+    set([]),
+    set([]),
+    set([]),
+    set(["Ryan"])
+]
 
 while True:
     order = input(
@@ -193,7 +224,7 @@ while True:
         print("member chosen")
         print(fixed_members)
     elif order == "g":
-        candidate_members = get_candidate_members(persons=Persons,available_list=availabe_list,fixed_list=fixed_members)
+        candidate_members = get_candidate_members(persons=Persons,available_list=availabe_list,main_members=main_members,sub_members=sub_members,fixed_list=fixed_members)
         print(candidate_members)
     elif order == "s":
         save(persons=Persons,fixed_members=fixed_members)
