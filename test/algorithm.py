@@ -1,9 +1,7 @@
 
 import random
-import copy
 import json
 import polars as pl
-from enum import Enum
 
 
 class Person:
@@ -107,16 +105,13 @@ def get_candidate_members(persons : dict[str,Person], available_list : list[set[
         if len(unassigned) == 0:
             candidate_members.append(current_lineup)
             return
-        for i in unassigned: # 未選択のポジションでfor 文を回す
-            for possible_member in available_list[i]: # そのポジションに携われるメンバー
-                if not possible_member in assigned: # すでに選ばれているメンバーでないから選択できる
-                    next_lineup = current_lineup.copy()
-                    new_assigned = assigned.copy()
-                    new_assigned.add(possible_member)
-                    new_unassigned = unassigned.copy()
-                    new_unassigned.remove(i)
-                    next_lineup[i] = possible_member
-                    DFS(next_lineup,new_assigned,new_unassigned)
+        i = next(iter(unassigned)) # 未選択のポジションを1つ選ぶ(全部で回すと同じ組み合わせが順番違いで重複生成される)
+        rest_unassigned = unassigned - {i}
+        for possible_member in available_list[i]: # そのポジションに携われるメンバー
+            if not possible_member in assigned: # すでに選ばれているメンバーでないから選択できる
+                next_lineup = current_lineup.copy()
+                next_lineup[i] = possible_member
+                DFS(next_lineup, assigned | {possible_member}, rest_unassigned)
 
     DFS(current_lineup,assigned,unassigned)
     
@@ -132,7 +127,7 @@ candidate_members : pl.DataFrame = []
 
 while True:
     order = input(
-        "a : available dict, status : print status of main members, r : renew status, g : get candidate members, s : save, l : load, e : exit\n"
+        "a : available dict, status : print status of fixed members, r : renew status, g : get candidate members, s : save, l : load, e : exit\n"
         )
 
     if order == "a":
