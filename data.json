@@ -1,354 +1,331 @@
 {
   "Persons": {
     "Adam": {
-      "status": 1,
+      "status": true,
       "pos": [
-        3,
-        6
+        2,
+        5
       ]
     },
     "Brian": {
-      "status": 2,
+      "status": false,
       "pos": [
-        3,
-        8,
-        7,
+        2,
+        5,
         6,
-        10,
+        7,
+        8,
         9
       ]
     },
     "Chris": {
-      "status": 1,
+      "status": true,
       "pos": [
-        11
+        10
       ]
     },
     "Derek": {
-      "status": 3,
+      "status": false,
       "pos": [
-        3,
-        11,
-        4,
+        0,
         1,
-        8,
-        7,
+        2,
+        3,
+        4,
         5,
-        10,
         6,
+        7,
+        8,
         9,
-        2
+        10
       ]
     },
     "Ethan": {
-      "status": 1,
+      "status": true,
       "pos": [
-        3,
-        11,
+        0,
         1,
-        8,
+        2,
+        6,
         7,
-        2
+        10
       ]
     },
     "Felix": {
-      "status": 3,
+      "status": false,
       "pos": [
-        3,
-        11,
-        4,
+        0,
         1,
-        8,
-        7,
-        10,
+        2,
+        3,
+        5,
         6,
+        7,
+        8,
         9,
-        2
+        10
       ]
     },
     "George": {
-      "status": 1,
+      "status": true,
       "pos": [
-        3,
-        11,
-        4,
+        0,
         1,
-        8,
-        7,
+        2,
+        3,
+        4,
         5,
-        10,
         6,
+        7,
+        8,
         9,
-        2
+        10
       ]
     },
     "Henry": {
-      "status": 1,
+      "status": true,
       "pos": [
-        8,
-        7,
-        4
+        3,
+        6,
+        7
       ]
     },
     "Ian": {
-      "status": 1,
+      "status": true,
       "pos": [
-        3,
-        11,
+        0,
         1,
-        8,
-        5,
-        2
+        2,
+        4,
+        7,
+        10
       ]
     },
     "Jack": {
-      "status": 1,
+      "status": true,
       "pos": [
+        0,
+        1,
+        2,
         3,
         4,
-        1,
-        8,
+        6,
         7,
-        5,
-        9,
-        2
+        8
       ]
     },
     "Kevin": {
-      "status": 1,
+      "status": true,
       "pos": [
-        3,
-        11,
-        1,
-        8,
-        7,
+        0,
+        2,
+        4,
         5,
-        10,
         6,
-        9
+        7,
+        8,
+        9,
+        10
       ]
     },
     "Liam": {
-      "status": 1,
+      "status": true,
       "pos": [
+        1,
+        3,
         4,
         5,
-        6,
-        10,
-        9,
-        2
-      ]
-    },
-    "Mason": {
-      "status": 1,
-      "pos": [
-        3,
-        11,
-        4,
-        1,
         8,
-        7,
-        5,
-        10,
-        6,
-        9,
-        2
-      ]
-    },
-    "Nathan": {
-      "status": 1,
-      "pos": [
-        3,
-        1,
-        8,
-        7,
         9
       ]
     },
-    "Oscar": {
-      "status": 1,
+    "Mason": {
+      "status": true,
       "pos": [
-        4,
+        0,
         1,
-        8,
-        7,
+        2,
+        3,
+        4,
         5,
         6,
-        10,
+        7,
+        8,
+        9,
+        10
+      ]
+    },
+    "Nathan": {
+      "status": true,
+      "pos": [
+        0,
+        2,
+        6,
+        7,
+        8
+      ]
+    },
+    "Oscar": {
+      "status": true,
+      "pos": [
+        0,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
         9
       ]
     },
     "Paul": {
-      "status": 1,
+      "status": true,
       "pos": [
-        9,
-        7,
-        5
+        8,
+        4,
+        6
       ]
     },
     "Quinn": {
-      "status": 1,
+      "status": true,
       "pos": [
-        11,
+        0,
         1,
+        7,
         8,
-        10,
         9,
-        2
+        10
       ]
     },
     "Ryan": {
-      "status": 1,
+      "status": true,
       "pos": [
-        3,
-        11,
-        4,
+        0,
         1,
-        8,
-        7,
+        2,
+        3,
+        4,
         5,
-        10,
         6,
+        7,
+        8,
         9,
-        2
+        10
       ]
     },
     "Steve": {
-      "status": 1,
+      "status": true,
       "pos": [
-        3,
-        11,
-        4,
+        0,
         1,
-        8,
-        7,
+        2,
+        3,
+        4,
         5,
-        10,
         6,
+        7,
+        8,
         9,
-        2
+        10
       ]
     },
     "Trevor": {
-      "status": 1,
+      "status": true,
       "pos": [
-        3,
-        8,
-        6,
-        10,
-        2
+        1,
+        2,
+        5,
+        7,
+        9
       ]
     },
     "Victor": {
-      "status": 1,
+      "status": true,
       "pos": [
-        11,
-        4,
+        0,
         1,
-        8,
-        7,
+        3,
+        4,
         5,
-        10,
         6,
-        2
+        7,
+        9,
+        10
       ]
     },
     "Wyatt": {
-      "status": 1,
+      "status": true,
       "pos": [
+        0,
+        2,
         3,
-        4,
-        1,
-        8,
+        6,
         7,
-        10,
+        8,
         9
       ]
     },
     "Xavier": {
-      "status": 1,
+      "status": true,
       "pos": [
+        0,
+        2,
         3,
         4,
-        1,
-        8,
-        7,
         5,
-        10,
         6,
+        7,
+        8,
         9
       ]
     },
     "Aaron": {
-      "status": 1,
+      "status": true,
       "pos": [
+        1,
+        2,
         3,
-        4,
+        7,
         8,
-        10,
-        9,
-        2
+        9
       ]
     },
     "Alan": {
-      "status": 1,
+      "status": true,
       "pos": [
-        9,
-        3,
+        8,
+        1,
         2
       ]
     },
     "Albert": {
-      "status": 1,
+      "status": true,
       "pos": [
-        3,
-        11,
-        4,
+        0,
         1,
-        8,
-        7,
+        2,
+        3,
+        4,
         5,
-        10,
         6,
+        7,
+        8,
         9,
-        2
+        10
       ]
     }
   },
-  "main": [
-    "Felix",
+  "fix": [
+    "",
     "George",
-    "Derek",
+    "",
     "Henry",
     "Kevin",
     "Trevor",
     "Oscar",
     "Aaron",
-    "Brian",
+    "",
     "Victor",
     "Quinn"
-  ],
-  "sub": [
-    "Nathan",
-    "Felix",
-    "Nathan",
-    "Oscar",
-    "George",
-    "Felix",
-    "Derek",
-    "Kevin",
-    "Alan",
-    "Mason",
-    "Chris"
-  ],
-  "fix": {
-    "2" : "George",
-    "4" : "Henry",
-    "5" : "Kevin",
-    "6" : "Trevor",
-    "7" : "Oscar",
-    "8" : "Aaron",
-    "10" : "Victor",
-    "11" : "Quinn"
-  }
+  ]
 }
