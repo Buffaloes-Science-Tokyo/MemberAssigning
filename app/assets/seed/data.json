@@ -1,0 +1,91 @@
+{
+  "Persons": {
+    "Kevin": {
+      "status": true,
+      "pos": [
+        8
+      ]
+    },
+    "Liam": {
+      "status": true,
+      "pos": [
+        0,
+        2
+      ]
+    },
+    "Mason": {
+      "status": true,
+      "pos": [
+        5
+      ]
+    },
+    "Oscar": {
+      "status": true,
+      "pos": [
+        4,
+        5
+      ]
+    },
+    "Paul": {
+      "status": true,
+      "pos": [
+        10,
+        5
+      ]
+    },
+    "Quinn": {
+      "status": true,
+      "pos": [
+        3
+      ]
+    },
+    "Ryan": {
+      "status": true,
+      "pos": [
+        8,
+        10,
+        3
+      ]
+    },
+    "Trevor": {
+      "status": true,
+      "pos": [
+        1
+      ]
+    },
+    "Wyatt": {
+      "status": true,
+      "pos": [
+        2,
+        4,
+        5
+      ]
+    },
+    "Aaron": {
+      "status": true,
+      "pos": [
+        8,
+        3
+      ]
+    },
+    "Albert": {
+      "status": true,
+      "pos": [
+        9
+      ]
+    }
+  },
+  "fix": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ]
+}
