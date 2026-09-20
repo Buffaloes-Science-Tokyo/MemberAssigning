@@ -2,8 +2,11 @@
 import random
 import json
 import polars as pl
+import polars.selectors as cs
 import math
 
+pl.Config.set_tbl_rows(-1)
+pl.Config.set_tbl_cols(-1)
 
 class Person:
 
@@ -37,11 +40,11 @@ RANDOM_NAMES = [
     "Landon","Lawrence","Leo","Leon"
 ]
 
-def get_random_persons(count) -> dict[str,Person]:
+def get_random_persons(count : int, sample : int) -> dict[str,Person]:
     persons = {}
     for i in range(count):
         name = RANDOM_NAMES[i] if i < len(RANDOM_NAMES) else f"Player{i + 1}"
-        positions = random.sample(list(range(11)), k=random.randint(1, 11))
+        positions = random.sample(list(range(11)), k=random.randint(1, sample))
         persons[name] = Person(name, positions)
     return persons
 
@@ -104,7 +107,8 @@ def get_candidate_members(persons : dict[str,Person], available_list : list[set[
     def get_expected_process_time(unassigned : set[int]) -> float:
         cnt = 1    
         for i in unassigned:
-            cnt *= len(available_list[i])
+            if available_list[i]:
+                cnt *= len(available_list[i])
         return math.pow(10,int(math.log10(cnt) - 7)) # おおよその処理時間を与える
 
     print(get_expected_process_time(unassigned))
@@ -112,10 +116,15 @@ def get_candidate_members(persons : dict[str,Person], available_list : list[set[
     candidate_members = [] # 考えられるメンバーの組
 
     def DFS(current_lineup : list[str], assigned : set[str], unassigned : set[int]):
+        while unassigned:
+            i = next(iter(unassigned)) # 未選択のポジションを1つ選ぶ(全部で回すと同じ組み合わせが順番違いで重複生成される)
+            if len(available_list[i]) > 0:
+                break
+            else:
+                unassigned.remove(i)
         if len(unassigned) == 0:
             candidate_members.append(current_lineup)
             return
-        i = next(iter(unassigned)) # 未選択のポジションを1つ選ぶ(全部で回すと同じ組み合わせが順番違いで重複生成される)
         rest_unassigned = unassigned - {i}
         for possible_member in available_list[i]: # そのポジションに携われるメンバー
             if not possible_member in assigned and persons[possible_member].status: # すでに選ばれているメンバーでない＋インできるから選択できる
@@ -130,6 +139,8 @@ def get_candidate_members(persons : dict[str,Person], available_list : list[set[
         schema=list(map(str,range(11))),
         orient="row"
     )
+
+
 
 Persons : dict[str,Person] = {}
 availabe_list : list[set(str)] = []
@@ -196,9 +207,6 @@ while True:
     else:
         print("unsupported order!")
         continue
-
-
-
 
 
 
