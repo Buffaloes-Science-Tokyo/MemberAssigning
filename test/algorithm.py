@@ -2,8 +2,6 @@
 import random
 import json
 import polars as pl
-import polars.selectors as cs
-import math
 
 pl.Config.set_tbl_rows(-1)
 pl.Config.set_tbl_cols(-1)
