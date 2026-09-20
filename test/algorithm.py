@@ -114,16 +114,6 @@ def get_candidate_members(persons : dict[str,Person], available_list : list[set[
                 elif fixed_list[i] in sub_members[i]:
                     score += SCORE_SUBSTITUTE
 
-
-    def get_expected_process_time(unassigned : set[int]) -> float:
-        cnt = 1    
-        for i in unassigned:
-            if available_list[i]:
-                cnt *= len(available_list[i])
-        return math.pow(10,int(math.log10(cnt) - 7)) # おおよその処理時間を与える
-
-    print(get_expected_process_time(unassigned))
-
     candidate_members = [] # 考えられるメンバーの組
 
     def DFS(current_lineup : list[str], assigned : set[str], unassigned : set[int], score : int):
