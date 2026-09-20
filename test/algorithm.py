@@ -2,6 +2,7 @@
 import random
 import json
 import polars as pl
+import math
 
 
 class Person:
@@ -86,6 +87,7 @@ def load():
         input_data["Persons"][name] = Person(name,person["pos"],person["status"])
     return input_data
 
+
 def get_candidate_members(persons : dict[str,Person], available_list : list[set[str]], fixed_list : list[str] = [""]*11) -> pl.DataFrame:
     current_lineup = fixed_list
     assigned : set[str] = set([])
@@ -99,6 +101,14 @@ def get_candidate_members(persons : dict[str,Person], available_list : list[set[
             else:
                 assigned.add(fixed_list[i]) # 未選択のポジション
 
+    def get_expected_process_time(unassigned : set[int]) -> float:
+        cnt = 1    
+        for i in unassigned:
+            cnt *= len(available_list[i])
+        return math.pow(10,int(math.log10(cnt) - 7)) # おおよその処理時間を与える
+
+    print(get_expected_process_time(unassigned))
+
     candidate_members = [] # 考えられるメンバーの組
 
     def DFS(current_lineup : list[str], assigned : set[str], unassigned : set[int]):
@@ -108,7 +118,7 @@ def get_candidate_members(persons : dict[str,Person], available_list : list[set[
         i = next(iter(unassigned)) # 未選択のポジションを1つ選ぶ(全部で回すと同じ組み合わせが順番違いで重複生成される)
         rest_unassigned = unassigned - {i}
         for possible_member in available_list[i]: # そのポジションに携われるメンバー
-            if not possible_member in assigned: # すでに選ばれているメンバーでないから選択できる
+            if not possible_member in assigned and persons[possible_member].status: # すでに選ばれているメンバーでない＋インできるから選択できる
                 next_lineup = current_lineup.copy()
                 next_lineup[i] = possible_member
                 DFS(next_lineup, assigned | {possible_member}, rest_unassigned)
@@ -117,7 +127,8 @@ def get_candidate_members(persons : dict[str,Person], available_list : list[set[
     
     return pl.DataFrame(
         data=candidate_members,
-        schema=list(map(str,range(11)))
+        schema=list(map(str,range(11))),
+        orient="row"
     )
 
 Persons : dict[str,Person] = {}
@@ -185,3 +196,9 @@ while True:
     else:
         print("unsupported order!")
         continue
+
+
+
+
+
+
