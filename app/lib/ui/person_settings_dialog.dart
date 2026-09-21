@@ -3,17 +3,21 @@ import 'package:flutter/material.dart';
 import '../data/database.dart';
 import '../data/positions.dart';
 
-/// Lets the coach toggle a person's IN/OUT status and which of the 11
-/// positions they're eligible to play.
+/// Lets the coach toggle a person's IN/OUT status and which of the current
+/// play's 11 positions they're eligible to play.
 class PersonSettingsDialog extends StatefulWidget {
   const PersonSettingsDialog({
     super.key,
     required this.person,
+    required this.positionLabels,
     required this.initialPositions,
     required this.onSave,
   });
 
   final Person person;
+
+  /// The current play's 11 position labels, in index order.
+  final List<String> positionLabels;
   final Set<int> initialPositions;
   final void Function(
     String name,
@@ -95,7 +99,7 @@ class _PersonSettingsDialogState extends State<PersonSettingsDialog> {
               children: [
                 for (var i = 0; i < kPositionCount; i++)
                   FilterChip(
-                    label: Text(kPositionLabels[i]),
+                    label: Text(widget.positionLabels[i]),
                     selected: _positions.contains(i),
                     onSelected: (selected) => setState(() {
                       if (selected) {

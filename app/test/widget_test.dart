@@ -46,13 +46,44 @@ void main() {
     final personId = await db.into(db.persons).insert(
           PersonsCompanion.insert(name: 'Kevin'),
         );
+    final play = await db.firstPlay();
 
-    await db.setPersonPositions(personId, {2, 5, 8});
-    var positions = await db.watchPositionsForPerson(personId).first;
+    await db.setPersonPositions(personId, play.id, {2, 5, 8});
+    var positions = await db.watchPositionsForPerson(personId, play.id).first;
     expect(positions.toSet(), {2, 5, 8});
 
-    await db.setPersonPositions(personId, {10});
-    positions = await db.watchPositionsForPerson(personId).first;
+    await db.setPersonPositions(personId, play.id, {10});
+    positions = await db.watchPositionsForPerson(personId, play.id).first;
     expect(positions.toSet(), {10});
+  });
+
+  test('each play keeps its own independent position labels and eligibility',
+      () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    final personId = await db.into(db.persons).insert(
+          PersonsCompanion.insert(name: 'Kevin'),
+        );
+    final kc = await db.firstPlay();
+    final other = await db.createPlay(
+      'Other',
+      'Formation B',
+      ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'],
+    );
+
+    await db.setPersonPositions(personId, kc.id, {0, 1});
+    await db.setPersonPositions(personId, other.id, {9});
+
+    final kcPositions = await db.watchPositionsForPerson(personId, kc.id).first;
+    final otherPositions =
+        await db.watchPositionsForPerson(personId, other.id).first;
+    expect(kcPositions.toSet(), {0, 1});
+    expect(otherPositions.toSet(), {9});
+
+    final kcLabels = await db.watchPlayPositionLabels(kc.id).first;
+    final otherLabels = await db.watchPlayPositionLabels(other.id).first;
+    expect(kcLabels, ['10', '9', '8', '7', '6', '5', '4', '3', '2', '1', 'K']);
+    expect(otherLabels, ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']);
   });
 }

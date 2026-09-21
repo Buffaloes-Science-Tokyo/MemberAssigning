@@ -4,6 +4,8 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
+import 'positions.dart';
+
 part 'database.g.dart';
 
 /// Mirrors `Person.status` from the Python prototype (`algorithm.py`).
@@ -19,16 +21,21 @@ class Persons extends Table {
   BoolColumn get guest => boolean().withDefault(const Constant(false))();
 }
 
-/// Mirrors `Person.pos` (which positions a person is eligible for).
+/// Mirrors `Person.pos` (which positions a person is eligible for), scoped
+/// per play: the same 11 slot indices mean different things in different
+/// plays (see [PlayPositions]), so a person's eligibility is tracked
+/// separately for each one.
 class PersonPositions extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get personId =>
       integer().references(Persons, #id, onDelete: KeyAction.cascade)();
+  IntColumn get playId =>
+      integer().references(Plays, #id, onDelete: KeyAction.cascade)();
   IntColumn get positionIndex => integer()();
 
   @override
   List<Set<Column>> get uniqueKeys => [
-        {personId, positionIndex},
+        {personId, playId, positionIndex},
       ];
 }
 
@@ -37,6 +44,23 @@ class Plays extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get category => text()();
   TextColumn get name => text()();
+}
+
+/// The 11 position labels for one play (see `data/positions.dart`'s
+/// `kPositionCount`). Every play defines its own, independent of any other
+/// play's labels, so different kinds of play can use entirely different
+/// position names.
+class PlayPositions extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get playId =>
+      integer().references(Plays, #id, onDelete: KeyAction.cascade)();
+  IntColumn get positionIndex => integer()();
+  TextColumn get label => text()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {playId, positionIndex},
+      ];
 }
 
 /// Current manual (drag-and-drop) lineup assignment per play.
@@ -126,6 +150,7 @@ class LineupTemplateSlots extends Table {
   Persons,
   PersonPositions,
   Plays,
+  PlayPositions,
   LineupSlots,
   MainMembers,
   SubMembers,
@@ -144,7 +169,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -173,23 +198,63 @@ class AppDatabase extends _$AppDatabase {
           if (from < 6) {
             await m.addColumn(persons, persons.guest);
           }
+          if (from < 7) {
+            // Position labels and eligibility are now per-play instead of
+            // one fixed global set. Preserve existing picks by attaching
+            // them to whichever play already exists (there's only ever
+            // been the one so far) before recreating person_positions with
+            // its new play_id column.
+            await m.createTable(playPositions);
+
+            final existingPlay =
+                await customSelect('SELECT id FROM plays LIMIT 1').getSingleOrNull();
+            final oldPersonPositions = await customSelect(
+              'SELECT person_id, position_index FROM person_positions',
+            ).get();
+
+            await m.deleteTable(personPositions.actualTableName);
+            await m.createTable(personPositions);
+
+            final existingPlayId = existingPlay?.data['id'] as int?;
+            if (existingPlayId != null) {
+              for (var i = 0; i < kDefaultPositionLabels.length; i++) {
+                await into(playPositions).insert(
+                  PlayPositionsCompanion.insert(
+                    playId: existingPlayId,
+                    positionIndex: i,
+                    label: kDefaultPositionLabels[i],
+                  ),
+                );
+              }
+              for (final row in oldPersonPositions) {
+                await into(personPositions).insert(
+                  PersonPositionsCompanion.insert(
+                    personId: row.data['person_id'] as int,
+                    playId: existingPlayId,
+                    positionIndex: row.data['position_index'] as int,
+                  ),
+                );
+              }
+            }
+          }
         },
       );
 
   Stream<List<Person>> watchAllPersons() => select(persons).watch();
 
-  Stream<List<int>> watchPositionsForPerson(int personId) {
+  Stream<List<int>> watchPositionsForPerson(int personId, int playId) {
     final query = select(personPositions)
-      ..where((t) => t.personId.equals(personId));
+      ..where((t) => t.personId.equals(personId) & t.playId.equals(playId));
     return query
         .watch()
         .map((rows) => rows.map((r) => r.positionIndex).toList());
   }
 
-  /// All persons' eligible positions at once, keyed by personId, for
+  /// All persons' eligible positions for one play, keyed by personId, for
   /// screens that need to render the whole roster together.
-  Stream<Map<int, Set<int>>> watchAllPersonPositions() {
-    return select(personPositions).watch().map((rows) {
+  Stream<Map<int, Set<int>>> watchAllPersonPositions(int playId) {
+    final query = select(personPositions)..where((t) => t.playId.equals(playId));
+    return query.watch().map((rows) {
       final map = <int, Set<int>>{};
       for (final row in rows) {
         map.putIfAbsent(row.personId, () => {}).add(row.positionIndex);
@@ -229,27 +294,105 @@ class AppDatabase extends _$AppDatabase {
         .write(PersonsCompanion(guest: Value(guest)));
   }
 
-  /// Replaces the full set of eligible positions for a person.
-  Future<void> setPersonPositions(int personId, Set<int> positionIndexes) {
+  /// Replaces the full set of positions a person is eligible for in one
+  /// play. Other plays' eligibility for the same person is untouched.
+  Future<void> setPersonPositions(
+    int personId,
+    int playId,
+    Set<int> positionIndexes,
+  ) {
     return transaction(() async {
       await (delete(personPositions)
-            ..where((t) => t.personId.equals(personId)))
+            ..where((t) => t.personId.equals(personId) & t.playId.equals(playId)))
           .go();
       for (final pos in positionIndexes) {
         await into(personPositions).insert(
-          PersonPositionsCompanion.insert(personId: personId, positionIndex: pos),
+          PersonPositionsCompanion.insert(
+            personId: personId,
+            playId: playId,
+            positionIndex: pos,
+          ),
         );
       }
     });
   }
 
+  Stream<List<Play>> watchAllPlays() => select(plays).watch();
+
+  /// Ensures at least one play exists, creating the original default
+  /// ("KC" / "左sabel_α", with [kDefaultPositionLabels]) if the table is
+  /// still empty, and returns one (arbitrary if several already exist).
+  /// Used only to bootstrap the very first run.
   Future<Play> firstPlay() async {
     final existing = await select(plays).getSingleOrNull();
     if (existing != null) return existing;
-    final id = await into(plays).insert(
-      PlaysCompanion.insert(category: 'KC', name: '左sabel_α'),
-    );
-    return (select(plays)..where((t) => t.id.equals(id))).getSingle();
+    return createPlay('KC', '左sabel_α', kDefaultPositionLabels);
+  }
+
+  /// Creates a new play with its own set of 11 position labels.
+  /// [positionLabels] must have exactly [kPositionCount] entries.
+  Future<Play> createPlay(
+    String category,
+    String name,
+    List<String> positionLabels,
+  ) {
+    assert(positionLabels.length == kPositionCount);
+    return transaction(() async {
+      final id = await into(plays).insert(
+        PlaysCompanion.insert(category: category, name: name),
+      );
+      for (var i = 0; i < positionLabels.length; i++) {
+        await into(playPositions).insert(
+          PlayPositionsCompanion.insert(
+            playId: id,
+            positionIndex: i,
+            label: positionLabels[i],
+          ),
+        );
+      }
+      return (select(plays)..where((t) => t.id.equals(id))).getSingle();
+    });
+  }
+
+  Future<void> renamePlay(int playId, String category, String name) {
+    return (update(plays)..where((t) => t.id.equals(playId)))
+        .write(PlaysCompanion(category: Value(category), name: Value(name)));
+  }
+
+  /// Deletes a play and everything scoped to it (position labels, person
+  /// eligibility, lineup/main/sub members, templates) via cascading FKs.
+  Future<void> deletePlay(int playId) {
+    return (delete(plays)..where((t) => t.id.equals(playId))).go();
+  }
+
+  /// A play's 11 position labels, in position-index order.
+  Stream<List<String>> watchPlayPositionLabels(int playId) {
+    final query = select(playPositions)
+      ..where((t) => t.playId.equals(playId))
+      ..orderBy([(t) => OrderingTerm.asc(t.positionIndex)]);
+    return query.watch().map((rows) => [for (final row in rows) row.label]);
+  }
+
+  /// Replaces a play's position labels. [labels] must have exactly
+  /// [kPositionCount] entries.
+  Future<void> setPlayPositionLabels(int playId, List<String> labels) {
+    assert(labels.length == kPositionCount);
+    return transaction(() async {
+      for (var i = 0; i < labels.length; i++) {
+        final companion = PlayPositionsCompanion.insert(
+          playId: playId,
+          positionIndex: i,
+          label: labels[i],
+        );
+        await into(playPositions).insert(
+          companion,
+          onConflict: DoUpdate(
+            (_) => companion,
+            target: [playPositions.playId, playPositions.positionIndex],
+          ),
+        );
+      }
+    });
   }
 
   Stream<List<LineupSlot>> watchLineupSlots(int playId) {
@@ -451,12 +594,14 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// Loads the bundled `data.json` seed roster (11 persons matching the
-  /// 11 positions) the first time the database is empty. Safe to call on
-  /// every app start; it no-ops once persons already exist.
+  /// 11 positions) the first time the database is empty, with their
+  /// eligible positions attached to the default play (see [firstPlay]).
+  /// Safe to call on every app start; it no-ops once persons already exist.
   Future<void> seedIfEmpty() async {
     final hasAny = await select(persons).get().then((rows) => rows.isNotEmpty);
     if (hasAny) return;
 
+    final play = await firstPlay();
     final raw = await rootBundle.loadString('assets/seed/data.json');
     final data = jsonDecode(raw) as Map<String, dynamic>;
     final personsJson = data['Persons'] as Map<String, dynamic>;
@@ -475,6 +620,7 @@ class AppDatabase extends _$AppDatabase {
           await into(personPositions).insert(
             PersonPositionsCompanion.insert(
               personId: personId,
+              playId: play.id,
               positionIndex: pos,
             ),
           );

@@ -14,7 +14,7 @@
       "type": "dart",
       "deviceId": "chrome",
       "flutterMode": "debug",
-      "args": ["--web-port", "5959"]
+      "args": ["--web-port", "5959", "--cross-origin-isolation"]
     },
     {
       "name": "kick_members (Windows, Profile)",

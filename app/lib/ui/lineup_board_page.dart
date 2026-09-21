@@ -5,6 +5,7 @@ import '../data/positions.dart';
 import '../logic/auto_fill.dart';
 import 'person_card.dart';
 import 'person_settings_dialog.dart';
+import 'play_settings_dialog.dart';
 
 class LineupBoardPage extends StatefulWidget {
   const LineupBoardPage({super.key, required this.db});
@@ -16,75 +17,109 @@ class LineupBoardPage extends StatefulWidget {
 }
 
 class _LineupBoardPageState extends State<LineupBoardPage> {
-  Play? _play;
+  int? _selectedPlayId;
 
   @override
   void initState() {
     super.initState();
-    widget.db.firstPlay().then((play) => setState(() => _play = play));
+    widget.db.firstPlay().then((play) {
+      if (mounted) setState(() => _selectedPlayId = play.id);
+    });
+  }
+
+  Play? _resolvePlay(List<Play> plays) {
+    if (plays.isEmpty) return null;
+    for (final play in plays) {
+      if (play.id == _selectedPlayId) return play;
+    }
+    return plays.first;
   }
 
   @override
   Widget build(BuildContext context) {
-    final play = _play;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(play == null ? 'Kick Members' : '${play.category} / ${play.name}'),
-      ),
-      body: play == null
-          ? const Center(child: CircularProgressIndicator())
-          : StreamBuilder<List<Person>>(
-              stream: widget.db.watchAllPersons(),
-              builder: (context, personsSnapshot) {
-                final people = [...personsSnapshot.data ?? const <Person>[]]..sort((a, b) {
-                    if (a.gen == null || b.gen == null) {
-                      return (a.gen == null ? 1 : 0) - (b.gen == null ? 1 : 0);
+    return StreamBuilder<List<Play>>(
+      stream: widget.db.watchAllPlays(),
+      builder: (context, playsSnapshot) {
+        final plays = playsSnapshot.data ?? const <Play>[];
+        final play = _resolvePlay(plays);
+        return Scaffold(
+          appBar: AppBar(title: const Text('Kick Members')),
+          body: play == null
+              ? const Center(child: CircularProgressIndicator())
+              : StreamBuilder<List<String>>(
+                  stream: widget.db.watchPlayPositionLabels(play.id),
+                  builder: (context, labelsSnapshot) {
+                    final positionLabels = labelsSnapshot.data;
+                    if (positionLabels == null || positionLabels.length != kPositionCount) {
+                      return const Center(child: CircularProgressIndicator());
                     }
-                    return a.gen!.compareTo(b.gen!);
-                  });
-                return StreamBuilder<Map<int, Set<int>>>(
-                  stream: widget.db.watchAllPersonPositions(),
-                  builder: (context, positionsSnapshot) {
-                    final positionsByPerson = positionsSnapshot.data ?? const {};
-                    return StreamBuilder<List<LineupSlot>>(
-                      stream: widget.db.watchLineupSlots(play.id),
-                      builder: (context, slotsSnapshot) {
-                        final slots = slotsSnapshot.data ?? const <LineupSlot>[];
-                        final slotByPosition = {
-                          for (final slot in slots) slot.positionIndex: slot.personId,
-                        };
-                        return StreamBuilder<List<MainMember>>(
-                          stream: widget.db.watchMainMembers(play.id),
-                          builder: (context, mainSnapshot) {
-                            final mainMembers =
-                                mainSnapshot.data ?? const <MainMember>[];
-                            final mainByPosition = {
-                              for (final row in mainMembers)
-                                row.positionIndex: row.personId,
-                            };
-                            return StreamBuilder<List<SubMember>>(
-                              stream: widget.db.watchSubMembers(play.id),
-                              builder: (context, subSnapshot) {
-                                final subMembers =
-                                    subSnapshot.data ?? const <SubMember>[];
-                                final subByPosition = <int, Set<int>>{};
-                                for (final row in subMembers) {
-                                  subByPosition
-                                      .putIfAbsent(row.positionIndex, () => {})
-                                      .add(row.personId);
-                                }
-                                final peopleById = {
-                                  for (final person in people) person.id: person,
+                    return StreamBuilder<List<Person>>(
+                      stream: widget.db.watchAllPersons(),
+                      builder: (context, personsSnapshot) {
+                        final people = [...personsSnapshot.data ?? const <Person>[]]
+                          ..sort((a, b) {
+                            if (a.gen == null || b.gen == null) {
+                              return (a.gen == null ? 1 : 0) - (b.gen == null ? 1 : 0);
+                            }
+                            return a.gen!.compareTo(b.gen!);
+                          });
+                        return StreamBuilder<Map<int, Set<int>>>(
+                          stream: widget.db.watchAllPersonPositions(play.id),
+                          builder: (context, positionsSnapshot) {
+                            final positionsByPerson = positionsSnapshot.data ?? const {};
+                            return StreamBuilder<List<LineupSlot>>(
+                              stream: widget.db.watchLineupSlots(play.id),
+                              builder: (context, slotsSnapshot) {
+                                final slots = slotsSnapshot.data ?? const <LineupSlot>[];
+                                final slotByPosition = {
+                                  for (final slot in slots)
+                                    slot.positionIndex: slot.personId,
                                 };
-                                return _Board(
-                                  db: widget.db,
-                                  play: play,
-                                  people: people,
-                                  positionsByPerson: positionsByPerson,
-                                  fixedByPosition: slotByPosition,
-                                  mainByPosition: mainByPosition,
-                                  subByPosition: subByPosition,
-                                  peopleById: peopleById,
+                                return StreamBuilder<List<MainMember>>(
+                                  stream: widget.db.watchMainMembers(play.id),
+                                  builder: (context, mainSnapshot) {
+                                    final mainMembers =
+                                        mainSnapshot.data ?? const <MainMember>[];
+                                    final mainByPosition = {
+                                      for (final row in mainMembers)
+                                        row.positionIndex: row.personId,
+                                    };
+                                    return StreamBuilder<List<SubMember>>(
+                                      stream: widget.db.watchSubMembers(play.id),
+                                      builder: (context, subSnapshot) {
+                                        final subMembers =
+                                            subSnapshot.data ?? const <SubMember>[];
+                                        final subByPosition = <int, Set<int>>{};
+                                        for (final row in subMembers) {
+                                          subByPosition
+                                              .putIfAbsent(row.positionIndex, () => {})
+                                              .add(row.personId);
+                                        }
+                                        final peopleById = {
+                                          for (final person in people) person.id: person,
+                                        };
+                                        return _Board(
+                                          db: widget.db,
+                                          play: play,
+                                          plays: plays,
+                                          positionLabels: positionLabels,
+                                          people: people,
+                                          positionsByPerson: positionsByPerson,
+                                          fixedByPosition: slotByPosition,
+                                          mainByPosition: mainByPosition,
+                                          subByPosition: subByPosition,
+                                          peopleById: peopleById,
+                                          onSelectPlay: (id) =>
+                                              setState(() => _selectedPlayId = id),
+                                          onCreatePlay: () => _createPlay(context, play),
+                                          onEditPlay: () => _editPlay(context, play),
+                                          onDeletePlay: plays.length > 1
+                                              ? () => _deletePlay(context, play)
+                                              : null,
+                                        );
+                                      },
+                                    );
+                                  },
                                 );
                               },
                             );
@@ -93,20 +128,154 @@ class _LineupBoardPageState extends State<LineupBoardPage> {
                       },
                     );
                   },
-                );
+                ),
+        );
+      },
+    );
+  }
+
+  Future<void> _createPlay(BuildContext context, Play? current) async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) => PlaySettingsDialog(
+        title: 'New play',
+        initialCategory: current?.category ?? 'KC',
+        initialLabels: kDefaultPositionLabels,
+        onSave: (category, name, labels) async {
+          final play = await widget.db.createPlay(category, name, labels);
+          if (mounted) setState(() => _selectedPlayId = play.id);
+        },
+      ),
+    );
+  }
+
+  Future<void> _editPlay(BuildContext context, Play play) async {
+    final labels = await widget.db.watchPlayPositionLabels(play.id).first;
+    if (!context.mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (context) => PlaySettingsDialog(
+        title: 'Edit play',
+        initialCategory: play.category,
+        initialName: play.name,
+        initialLabels: labels,
+        onSave: (category, name, newLabels) async {
+          await widget.db.renamePlay(play.id, category, name);
+          await widget.db.setPlayPositionLabels(play.id, newLabels);
+        },
+      ),
+    );
+  }
+
+  Future<void> _deletePlay(BuildContext context, Play play) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete play'),
+        content: Text(
+          'Delete "${play.category} / ${play.name}"? This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed ?? false) {
+      if (_selectedPlayId == play.id) {
+        setState(() => _selectedPlayId = null);
+      }
+      await widget.db.deletePlay(play.id);
+    }
+  }
+}
+
+/// A dropdown to switch between plays, plus buttons to add a new one, edit
+/// the current one's category/name/position labels, or delete it (hidden
+/// when it's the only remaining play). Sits between the roster and the
+/// board's Auto-fill/Clear/Save row.
+class _PlaySwitcher extends StatelessWidget {
+  const _PlaySwitcher({
+    required this.plays,
+    required this.selected,
+    required this.onSelect,
+    required this.onCreate,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  final List<Play> plays;
+  final Play selected;
+  final void Function(int playId) onSelect;
+  final VoidCallback onCreate;
+  final VoidCallback onEdit;
+  final VoidCallback? onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Flexible(
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<int>(
+              value: selected.id,
+              isExpanded: false,
+              items: [
+                for (final play in plays)
+                  DropdownMenuItem(
+                    value: play.id,
+                    child: Text(
+                      '${play.category} / ${play.name}',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+              ],
+              onChanged: (value) {
+                if (value != null) onSelect(value);
               },
             ),
+          ),
+        ),
+        IconButton(
+          tooltip: 'New play',
+          icon: const Icon(Icons.add),
+          onPressed: onCreate,
+        ),
+        IconButton(
+          tooltip: 'Edit play',
+          icon: const Icon(Icons.edit_outlined),
+          onPressed: onEdit,
+        ),
+        if (onDelete != null)
+          IconButton(
+            tooltip: 'Delete play',
+            icon: const Icon(Icons.delete_outline),
+            onPressed: onDelete,
+          ),
+      ],
     );
   }
 }
 
-/// Roster grid: shows at most 3 rows × 4 columns (12) of cards per page;
+/// The board is split into a member-cards area on top and the assign area
+/// (position table) below; these flex values give the member-cards area
+/// roughly 30-40% of the total height and the assign area the rest.
+const int _kRosterAreaFlex = 35;
+const int _kAssignAreaFlex = 65;
+
+/// Roster grid: shows at most 2 rows × 5 columns (10) of cards per page;
 /// beyond that, cards live on further pages reachable via the arrow buttons
-/// or page dots in [_RosterPager].
-const double _kRosterCardWidth = 104;
-const double _kRosterCardHeight = 76;
-const int _kRosterRows = 3;
-const int _kRosterCols = 4;
+/// or page dots in [_RosterPager]. Card size is derived from the space
+/// available in the member-cards area, not fixed, so the grid always fills
+/// it exactly.
+const int _kRosterRows = 2;
+const int _kRosterCols = 5;
 const double _kRosterSpacing = 8;
 const int _kRosterPageSize = _kRosterRows * _kRosterCols;
 
@@ -125,16 +294,28 @@ class _Board extends StatefulWidget {
   const _Board({
     required this.db,
     required this.play,
+    required this.plays,
+    required this.positionLabels,
     required this.people,
     required this.positionsByPerson,
     required this.fixedByPosition,
     required this.mainByPosition,
     required this.subByPosition,
     required this.peopleById,
+    required this.onSelectPlay,
+    required this.onCreatePlay,
+    required this.onEditPlay,
+    required this.onDeletePlay,
   });
 
   final AppDatabase db;
   final Play play;
+
+  /// Every play, for the play switcher dropdown.
+  final List<Play> plays;
+
+  /// The current play's 11 position labels, in index order.
+  final List<String> positionLabels;
   final List<Person> people;
   final Map<int, Set<int>> positionsByPerson;
 
@@ -147,6 +328,11 @@ class _Board extends StatefulWidget {
   /// allows several people per position.
   final Map<int, Set<int>> subByPosition;
   final Map<int, Person> peopleById;
+
+  final void Function(int playId) onSelectPlay;
+  final VoidCallback onCreatePlay;
+  final VoidCallback onEditPlay;
+  final VoidCallback? onDeletePlay;
 
   @override
   State<_Board> createState() => _BoardState();
@@ -170,6 +356,8 @@ class _BoardState extends State<_Board> {
 
   AppDatabase get db => widget.db;
   Play get play => widget.play;
+  List<Play> get plays => widget.plays;
+  List<String> get positionLabels => widget.positionLabels;
   List<Person> get people => widget.people;
   Map<int, Set<int>> get positionsByPerson => widget.positionsByPerson;
   Map<int, int?> get fixedByPosition => widget.fixedByPosition;
@@ -200,223 +388,268 @@ class _BoardState extends State<_Board> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
+        // Member cards area: ~30-40% of the board's height, the rest below
+        // goes to the assign area (position table).
+        Expanded(
+          flex: _kRosterAreaFlex,
+          child: Column(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<_RosterFilter>(
-                    value: _rosterFilter,
-                    icon: Icon(
-                      Icons.arrow_drop_down,
-                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondaryContainer,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<_RosterFilter>(
+                          value: _rosterFilter,
+                          icon: Icon(
+                            Icons.arrow_drop_down,
+                            color:
+                                Theme.of(context).colorScheme.onSecondaryContainer,
+                          ),
+                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSecondaryContainer,
+                                fontWeight: FontWeight.bold,
+                              ),
+                          dropdownColor:
+                              Theme.of(context).colorScheme.secondaryContainer,
+                          items: [
+                            for (final filter in _RosterFilter.values)
+                              DropdownMenuItem(
+                                value: filter,
+                                child: Text(filter.label),
+                              ),
+                          ],
+                          onChanged: (value) {
+                            if (value != null) setState(() => _rosterFilter = value);
+                          },
+                        ),
+                      ),
                     ),
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.onSecondaryContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
-                    dropdownColor: Theme.of(context).colorScheme.secondaryContainer,
-                    items: [
-                      for (final filter in _RosterFilter.values)
-                        DropdownMenuItem(
-                          value: filter,
-                          child: Text(filter.label),
-                        ),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) setState(() => _rosterFilter = value);
-                    },
+                    const SizedBox(width: 16),
+                    Visibility(
+                      visible: _rosterFilter == _RosterFilter.all,
+                      maintainSize: true,
+                      maintainAnimation: true,
+                      maintainState: true,
+                      child: FilledButton.icon(
+                        onPressed: () => _addPerson(context),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add person'),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Visibility(
+                      visible: _rosterFilter == _RosterFilter.all,
+                      maintainSize: true,
+                      maintainAnimation: true,
+                      maintainState: true,
+                      child: _DeletePersonZone(
+                        onAccept: (person) => _deletePerson(context, person),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                  child: _RosterPager(
+                    people: _filteredPeople,
+                    onTapPerson: (person) => _openSettings(context, person),
+                    onDragStarted: (person) =>
+                        setState(() => _draggingPerson = person),
+                    onDragEnd: () => setState(() => _draggingPerson = null),
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
-              Visibility(
-                visible: _rosterFilter == _RosterFilter.all,
-                maintainSize: true,
-                maintainAnimation: true,
-                maintainState: true,
-                child: FilledButton.icon(
-                  onPressed: () => _addPerson(context),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add person'),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Visibility(
-                visible: _rosterFilter == _RosterFilter.all,
-                maintainSize: true,
-                maintainAnimation: true,
-                maintainState: true,
-                child: _DeletePersonZone(
-                  onAccept: (person) => _deletePerson(context, person),
-                ),
-              ),
             ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-          child: _RosterPager(
-            people: _filteredPeople,
-            onTapPerson: (person) => _openSettings(context, person),
-            onDragStarted: (person) => setState(() => _draggingPerson = person),
-            onDragEnd: () => setState(() => _draggingPerson = null),
           ),
         ),
         const Divider(height: 1),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
+        // Assign area: the rest of the board's height.
+        Expanded(
+          flex: _kAssignAreaFlex,
+          child: Column(
             children: [
-              IconButton(
-                tooltip: 'Higher-scoring combination',
-                onPressed:
-                    _canShiftAutoFillUp ? () => _shiftAutoFillCandidate(-1) : null,
-                icon: const Icon(Icons.keyboard_arrow_up),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+                child: _PlaySwitcher(
+                  plays: plays,
+                  selected: play,
+                  onSelect: widget.onSelectPlay,
+                  onCreate: widget.onCreatePlay,
+                  onEdit: widget.onEditPlay,
+                  onDelete: widget.onDeletePlay,
+                ),
               ),
-              IconButton(
-                tooltip: 'Lower-scoring combination',
-                onPressed:
-                    _canShiftAutoFillDown ? () => _shiftAutoFillCandidate(1) : null,
-                icon: const Icon(Icons.keyboard_arrow_down),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      tooltip: 'Higher-scoring combination',
+                      onPressed: _canShiftAutoFillUp
+                          ? () => _shiftAutoFillCandidate(-1)
+                          : null,
+                      icon: const Icon(Icons.keyboard_arrow_up),
+                    ),
+                    IconButton(
+                      tooltip: 'Lower-scoring combination',
+                      onPressed: _canShiftAutoFillDown
+                          ? () => _shiftAutoFillCandidate(1)
+                          : null,
+                      icon: const Icon(Icons.keyboard_arrow_down),
+                    ),
+                    if (_autoFillCandidates != null &&
+                        _autoFillCandidates!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Text(
+                          '${_autoFillIndex + 1}/${_autoFillCandidates!.length} '
+                          '(score ${_autoFillCandidates![_autoFillIndex].score})',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    TextButton.icon(
+                      onPressed: _autoFillBusy ? null : () => _autoFill(context),
+                      icon: _autoFillBusy
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.auto_fix_high),
+                      label: const Text('Auto-fill'),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton.icon(
+                      onPressed: () => _clearAutoFill(),
+                      icon: const Icon(Icons.backspace_outlined),
+                      label: const Text('Clear'),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton.icon(
+                      onPressed: () => _allClear(context),
+                      icon: const Icon(Icons.clear_all),
+                      label: const Text('All clear'),
+                    ),
+                    const SizedBox(width: 8),
+                    FilledButton.icon(
+                      onPressed: () => _saveTemplate(context),
+                      icon: const Icon(Icons.save_outlined),
+                      label: const Text('Save'),
+                    ),
+                  ],
+                ),
               ),
-              if (_autoFillCandidates != null && _autoFillCandidates!.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Text(
-                    '${_autoFillIndex + 1}/${_autoFillCandidates!.length} '
-                    '(score ${_autoFillCandidates![_autoFillIndex].score})',
-                    style: Theme.of(context).textTheme.bodySmall,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: SingleChildScrollView(
+                      child: _PositionTable(
+                        positionLabels: positionLabels,
+                        draggingPersonPositions: _draggingPerson == null
+                            ? null
+                            : positionsByPerson[_draggingPerson!.id] ??
+                                const <int>{},
+                        rows: [
+                          _BoardRow(
+                            title: 'Lineup',
+                            cellBuilder: (index) => _PositionSlot(
+                              assigned: peopleById[fixedByPosition[index]],
+                              onWillAccept: (person) => !person.isOut,
+                              onAccept: (person) =>
+                                  db.assignSlot(play.id, index, person.id),
+                              onClear: fixedByPosition[index] == null
+                                  ? null
+                                  : () => db.assignSlot(play.id, index, null),
+                            ),
+                          ),
+                          _BoardRow(
+                            title: 'Main members',
+                            cellBuilder: (index) => _PositionSlot(
+                              assigned: peopleById[mainByPosition[index]],
+                              onWillAccept: (person) => !person.isOut,
+                              onAccept: (person) =>
+                                  db.assignMainMember(play.id, index, person.id),
+                              onClear: mainByPosition[index] == null
+                                  ? null
+                                  : () =>
+                                      db.assignMainMember(play.id, index, null),
+                            ),
+                          ),
+                          _BoardRow(
+                            title: 'Sub members',
+                            cellBuilder: (index) {
+                              final assignedIds =
+                                  subByPosition[index] ?? const <int>{};
+                              return _MultiPositionSlot(
+                                assigned: [
+                                  for (final id in assignedIds)
+                                    if (peopleById[id] != null) peopleById[id]!,
+                                ],
+                                onWillAccept: (person) =>
+                                    !person.isOut &&
+                                    !assignedIds.contains(person.id),
+                                onAccept: (person) =>
+                                    db.addSubMember(play.id, index, person.id),
+                                onRemove: (personId) =>
+                                    db.removeSubMember(play.id, index, personId),
+                              );
+                            },
+                          ),
+                        ],
+                        peopleById: peopleById,
+                      ),
+                    ),
                   ),
                 ),
-              TextButton.icon(
-                onPressed: _autoFillBusy ? null : () => _autoFill(context),
-                icon: _autoFillBusy
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.auto_fix_high),
-                label: const Text('Auto-fill'),
               ),
-              const SizedBox(width: 8),
-              TextButton.icon(
-                onPressed: () => _clearAutoFill(),
-                icon: const Icon(Icons.backspace_outlined),
-                label: const Text('Clear'),
-              ),
-              const SizedBox(width: 8),
-              TextButton.icon(
-                onPressed: () => _allClear(context),
-                icon: const Icon(Icons.clear_all),
-                label: const Text('All clear'),
-              ),
-              const SizedBox(width: 8),
-              FilledButton.icon(
-                onPressed: () => _saveTemplate(context),
-                icon: const Icon(Icons.save_outlined),
-                label: const Text('Save'),
+              StreamBuilder<List<LineupTemplate>>(
+                stream: db.watchTemplates(play.id),
+                builder: (context, snapshot) {
+                  final templates = snapshot.data ?? const <LineupTemplate>[];
+                  if (templates.isEmpty) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                    child: SizedBox(
+                      height: 36,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: templates.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: 8),
+                        itemBuilder: (context, index) {
+                          final template = templates[index];
+                          return Tooltip(
+                            message: 'Long-press to rename',
+                            child: OutlinedButton(
+                              onPressed: () =>
+                                  db.applyTemplate(play.id, template.id),
+                              onLongPress: () => _renameTemplate(context, template),
+                              child: Text(template.name),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: SingleChildScrollView(
-                child: _PositionTable(
-                  draggingPersonPositions: _draggingPerson == null
-                      ? null
-                      : positionsByPerson[_draggingPerson!.id] ?? const <int>{},
-                  rows: [
-                    _BoardRow(
-                      title: 'Lineup',
-                      cellBuilder: (index) => _PositionSlot(
-                        assigned: peopleById[fixedByPosition[index]],
-                        onWillAccept: (person) => !person.isOut,
-                        onAccept: (person) =>
-                            db.assignSlot(play.id, index, person.id),
-                        onClear: fixedByPosition[index] == null
-                            ? null
-                            : () => db.assignSlot(play.id, index, null),
-                      ),
-                    ),
-                    _BoardRow(
-                      title: 'Main members',
-                      cellBuilder: (index) => _PositionSlot(
-                        assigned: peopleById[mainByPosition[index]],
-                        onWillAccept: (person) => !person.isOut,
-                        onAccept: (person) =>
-                            db.assignMainMember(play.id, index, person.id),
-                        onClear: mainByPosition[index] == null
-                            ? null
-                            : () => db.assignMainMember(play.id, index, null),
-                      ),
-                    ),
-                    _BoardRow(
-                      title: 'Sub members',
-                      cellBuilder: (index) {
-                        final assignedIds = subByPosition[index] ?? const <int>{};
-                        return _MultiPositionSlot(
-                          assigned: [
-                            for (final id in assignedIds)
-                              if (peopleById[id] != null) peopleById[id]!,
-                          ],
-                          onWillAccept: (person) =>
-                              !person.isOut && !assignedIds.contains(person.id),
-                          onAccept: (person) =>
-                              db.addSubMember(play.id, index, person.id),
-                          onRemove: (personId) =>
-                              db.removeSubMember(play.id, index, personId),
-                        );
-                      },
-                    ),
-                  ],
-                  peopleById: peopleById,
-                ),
-              ),
-            ),
-          ),
-        ),
-        StreamBuilder<List<LineupTemplate>>(
-          stream: db.watchTemplates(play.id),
-          builder: (context, snapshot) {
-            final templates = snapshot.data ?? const <LineupTemplate>[];
-            if (templates.isEmpty) return const SizedBox.shrink();
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: SizedBox(
-                height: 36,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: templates.length,
-                  separatorBuilder: (context, index) => const SizedBox(width: 8),
-                  itemBuilder: (context, index) {
-                    final template = templates[index];
-                    return Tooltip(
-                      message: 'Long-press to rename',
-                      child: OutlinedButton(
-                        onPressed: () => db.applyTemplate(play.id, template.id),
-                        onLongPress: () => _renameTemplate(context, template),
-                        child: Text(template.name),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            );
-          },
         ),
       ],
     );
@@ -708,13 +941,14 @@ class _BoardState extends State<_Board> {
       context: context,
       builder: (context) => PersonSettingsDialog(
         person: person,
+        positionLabels: positionLabels,
         initialPositions: positionsByPerson[person.id] ?? const {},
         onSave: (name, gen, isOut, guest, positions) {
           db.setPersonName(person.id, name);
           db.setPersonGen(person.id, gen);
           db.setPersonOut(person.id, isOut);
           db.setPersonGuest(person.id, guest);
-          db.setPersonPositions(person.id, positions);
+          db.setPersonPositions(person.id, play.id, positions);
         },
       ),
     );
@@ -808,59 +1042,65 @@ class _RosterPagerState extends State<_RosterPager> {
       });
     }
 
-    final gridWidth =
-        _kRosterCols * _kRosterCardWidth + (_kRosterCols - 1) * _kRosterSpacing;
-    final gridHeight =
-        _kRosterRows * _kRosterCardHeight + (_kRosterRows - 1) * _kRosterSpacing;
-
     return Column(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.chevron_left),
-              onPressed: page > 0 ? () => _goToPage(page - 1) : null,
-            ),
-            SizedBox(
-              width: gridWidth,
-              height: gridHeight,
-              child: PageView.builder(
-                controller: _controller,
-                itemCount: pageCount,
-                onPageChanged: (value) => setState(() => _page = value),
-                itemBuilder: (context, pageIndex) {
-                  final start = pageIndex * _kRosterPageSize;
-                  final end =
-                      (start + _kRosterPageSize).clamp(0, widget.people.length);
-                  final pagePeople = widget.people.sublist(start, end);
-                  return GridView.count(
-                    crossAxisCount: _kRosterCols,
-                    childAspectRatio: _kRosterCardWidth / _kRosterCardHeight,
-                    mainAxisSpacing: _kRosterSpacing,
-                    crossAxisSpacing: _kRosterSpacing,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      for (final person in pagePeople)
-                        PersonCard(
-                          person: person,
-                          onTap: () => widget.onTapPerson(person),
-                          onDragStarted: widget.onDragStarted == null
-                              ? null
-                              : () => widget.onDragStarted!(person),
-                          onDragEnd: widget.onDragEnd,
-                        ),
-                    ],
-                  );
-                },
+        Expanded(
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.chevron_left),
+                onPressed: page > 0 ? () => _goToPage(page - 1) : null,
               ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.chevron_right),
-              onPressed: page < pageCount - 1 ? () => _goToPage(page + 1) : null,
-            ),
-          ],
+              Expanded(
+                child: PageView.builder(
+                  controller: _controller,
+                  itemCount: pageCount,
+                  onPageChanged: (value) => setState(() => _page = value),
+                  itemBuilder: (context, pageIndex) {
+                    final start = pageIndex * _kRosterPageSize;
+                    final end =
+                        (start + _kRosterPageSize).clamp(0, widget.people.length);
+                    final pagePeople = widget.people.sublist(start, end);
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        // Size cells so the grid fills exactly the space
+                        // the member-cards area was given, with no leftover
+                        // gap or overflow.
+                        final cellWidth = (constraints.maxWidth -
+                                (_kRosterCols - 1) * _kRosterSpacing) /
+                            _kRosterCols;
+                        final cellHeight = (constraints.maxHeight -
+                                (_kRosterRows - 1) * _kRosterSpacing) /
+                            _kRosterRows;
+                        return GridView.count(
+                          crossAxisCount: _kRosterCols,
+                          childAspectRatio: cellWidth / cellHeight,
+                          mainAxisSpacing: _kRosterSpacing,
+                          crossAxisSpacing: _kRosterSpacing,
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: [
+                            for (final person in pagePeople)
+                              PersonCard(
+                                person: person,
+                                onTap: () => widget.onTapPerson(person),
+                                onDragStarted: widget.onDragStarted == null
+                                    ? null
+                                    : () => widget.onDragStarted!(person),
+                                onDragEnd: widget.onDragEnd,
+                              ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.chevron_right),
+                onPressed: page < pageCount - 1 ? () => _goToPage(page + 1) : null,
+              ),
+            ],
+          ),
         ),
         if (pageCount > 1)
           Padding(
@@ -909,17 +1149,20 @@ const double _kTableHeaderHeight = 28;
 const double _kTableRowHeight = 72;
 
 /// The board as a table: one column per position (matching
-/// [kPositionLabels]) and one row per [_BoardRow] (Lineup, Main members,
+/// [positionLabels]) and one row per [_BoardRow] (Lineup, Main members,
 /// Sub members), so a person's slot in each list lines up under the same
 /// position header. Columns are flex-sized so the table always spans the
 /// full available width instead of overflowing or leaving space unused.
 class _PositionTable extends StatelessWidget {
   const _PositionTable({
+    required this.positionLabels,
     required this.rows,
     required this.peopleById,
     this.draggingPersonPositions,
   });
 
+  /// The current play's 11 position labels, in index order.
+  final List<String> positionLabels;
   final List<_BoardRow> rows;
   final Map<int, Person> peopleById;
 
@@ -952,7 +1195,7 @@ class _PositionTable extends StatelessWidget {
                           : Colors.red.shade100),
                   child: Center(
                     child: Text(
-                      kPositionLabels[index],
+                      positionLabels[index],
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
                   ),

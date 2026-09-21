@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'database.dart';
+part of 'v6_database.dart';
 
 // ignore_for_file: type=lint
 class $PersonsTable extends Persons with TableInfo<$PersonsTable, Person> {
@@ -345,6 +345,274 @@ class PersonsCompanion extends UpdateCompanion<Person> {
   }
 }
 
+class $PersonPositionsV6Table extends PersonPositionsV6
+    with TableInfo<$PersonPositionsV6Table, PersonPositionsV6Data> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PersonPositionsV6Table(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _personIdMeta = const VerificationMeta(
+    'personId',
+  );
+  @override
+  late final GeneratedColumn<int> personId = GeneratedColumn<int>(
+    'person_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES persons (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _positionIndexMeta = const VerificationMeta(
+    'positionIndex',
+  );
+  @override
+  late final GeneratedColumn<int> positionIndex = GeneratedColumn<int>(
+    'position_index',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, personId, positionIndex];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'person_positions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PersonPositionsV6Data> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('person_id')) {
+      context.handle(
+        _personIdMeta,
+        personId.isAcceptableOrUnknown(data['person_id']!, _personIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_personIdMeta);
+    }
+    if (data.containsKey('position_index')) {
+      context.handle(
+        _positionIndexMeta,
+        positionIndex.isAcceptableOrUnknown(
+          data['position_index']!,
+          _positionIndexMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_positionIndexMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {personId, positionIndex},
+  ];
+  @override
+  PersonPositionsV6Data map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PersonPositionsV6Data(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      personId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}person_id'],
+      )!,
+      positionIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position_index'],
+      )!,
+    );
+  }
+
+  @override
+  $PersonPositionsV6Table createAlias(String alias) {
+    return $PersonPositionsV6Table(attachedDatabase, alias);
+  }
+}
+
+class PersonPositionsV6Data extends DataClass
+    implements Insertable<PersonPositionsV6Data> {
+  final int id;
+  final int personId;
+  final int positionIndex;
+  const PersonPositionsV6Data({
+    required this.id,
+    required this.personId,
+    required this.positionIndex,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['person_id'] = Variable<int>(personId);
+    map['position_index'] = Variable<int>(positionIndex);
+    return map;
+  }
+
+  PersonPositionsV6Companion toCompanion(bool nullToAbsent) {
+    return PersonPositionsV6Companion(
+      id: Value(id),
+      personId: Value(personId),
+      positionIndex: Value(positionIndex),
+    );
+  }
+
+  factory PersonPositionsV6Data.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PersonPositionsV6Data(
+      id: serializer.fromJson<int>(json['id']),
+      personId: serializer.fromJson<int>(json['personId']),
+      positionIndex: serializer.fromJson<int>(json['positionIndex']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'personId': serializer.toJson<int>(personId),
+      'positionIndex': serializer.toJson<int>(positionIndex),
+    };
+  }
+
+  PersonPositionsV6Data copyWith({
+    int? id,
+    int? personId,
+    int? positionIndex,
+  }) => PersonPositionsV6Data(
+    id: id ?? this.id,
+    personId: personId ?? this.personId,
+    positionIndex: positionIndex ?? this.positionIndex,
+  );
+  PersonPositionsV6Data copyWithCompanion(PersonPositionsV6Companion data) {
+    return PersonPositionsV6Data(
+      id: data.id.present ? data.id.value : this.id,
+      personId: data.personId.present ? data.personId.value : this.personId,
+      positionIndex: data.positionIndex.present
+          ? data.positionIndex.value
+          : this.positionIndex,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PersonPositionsV6Data(')
+          ..write('id: $id, ')
+          ..write('personId: $personId, ')
+          ..write('positionIndex: $positionIndex')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, personId, positionIndex);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PersonPositionsV6Data &&
+          other.id == this.id &&
+          other.personId == this.personId &&
+          other.positionIndex == this.positionIndex);
+}
+
+class PersonPositionsV6Companion
+    extends UpdateCompanion<PersonPositionsV6Data> {
+  final Value<int> id;
+  final Value<int> personId;
+  final Value<int> positionIndex;
+  const PersonPositionsV6Companion({
+    this.id = const Value.absent(),
+    this.personId = const Value.absent(),
+    this.positionIndex = const Value.absent(),
+  });
+  PersonPositionsV6Companion.insert({
+    this.id = const Value.absent(),
+    required int personId,
+    required int positionIndex,
+  }) : personId = Value(personId),
+       positionIndex = Value(positionIndex);
+  static Insertable<PersonPositionsV6Data> custom({
+    Expression<int>? id,
+    Expression<int>? personId,
+    Expression<int>? positionIndex,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (personId != null) 'person_id': personId,
+      if (positionIndex != null) 'position_index': positionIndex,
+    });
+  }
+
+  PersonPositionsV6Companion copyWith({
+    Value<int>? id,
+    Value<int>? personId,
+    Value<int>? positionIndex,
+  }) {
+    return PersonPositionsV6Companion(
+      id: id ?? this.id,
+      personId: personId ?? this.personId,
+      positionIndex: positionIndex ?? this.positionIndex,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (personId.present) {
+      map['person_id'] = Variable<int>(personId.value);
+    }
+    if (positionIndex.present) {
+      map['position_index'] = Variable<int>(positionIndex.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PersonPositionsV6Companion(')
+          ..write('id: $id, ')
+          ..write('personId: $personId, ')
+          ..write('positionIndex: $positionIndex')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $PlaysTable extends Plays with TableInfo<$PlaysTable, Play> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -583,627 +851,6 @@ class PlaysCompanion extends UpdateCompanion<Play> {
           ..write('id: $id, ')
           ..write('category: $category, ')
           ..write('name: $name')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $PersonPositionsTable extends PersonPositions
-    with TableInfo<$PersonPositionsTable, PersonPosition> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $PersonPositionsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _personIdMeta = const VerificationMeta(
-    'personId',
-  );
-  @override
-  late final GeneratedColumn<int> personId = GeneratedColumn<int>(
-    'person_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES persons (id) ON DELETE CASCADE',
-    ),
-  );
-  static const VerificationMeta _playIdMeta = const VerificationMeta('playId');
-  @override
-  late final GeneratedColumn<int> playId = GeneratedColumn<int>(
-    'play_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES plays (id) ON DELETE CASCADE',
-    ),
-  );
-  static const VerificationMeta _positionIndexMeta = const VerificationMeta(
-    'positionIndex',
-  );
-  @override
-  late final GeneratedColumn<int> positionIndex = GeneratedColumn<int>(
-    'position_index',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [id, personId, playId, positionIndex];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'person_positions';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<PersonPosition> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('person_id')) {
-      context.handle(
-        _personIdMeta,
-        personId.isAcceptableOrUnknown(data['person_id']!, _personIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_personIdMeta);
-    }
-    if (data.containsKey('play_id')) {
-      context.handle(
-        _playIdMeta,
-        playId.isAcceptableOrUnknown(data['play_id']!, _playIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_playIdMeta);
-    }
-    if (data.containsKey('position_index')) {
-      context.handle(
-        _positionIndexMeta,
-        positionIndex.isAcceptableOrUnknown(
-          data['position_index']!,
-          _positionIndexMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_positionIndexMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {personId, playId, positionIndex},
-  ];
-  @override
-  PersonPosition map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return PersonPosition(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      personId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}person_id'],
-      )!,
-      playId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}play_id'],
-      )!,
-      positionIndex: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}position_index'],
-      )!,
-    );
-  }
-
-  @override
-  $PersonPositionsTable createAlias(String alias) {
-    return $PersonPositionsTable(attachedDatabase, alias);
-  }
-}
-
-class PersonPosition extends DataClass implements Insertable<PersonPosition> {
-  final int id;
-  final int personId;
-  final int playId;
-  final int positionIndex;
-  const PersonPosition({
-    required this.id,
-    required this.personId,
-    required this.playId,
-    required this.positionIndex,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    map['person_id'] = Variable<int>(personId);
-    map['play_id'] = Variable<int>(playId);
-    map['position_index'] = Variable<int>(positionIndex);
-    return map;
-  }
-
-  PersonPositionsCompanion toCompanion(bool nullToAbsent) {
-    return PersonPositionsCompanion(
-      id: Value(id),
-      personId: Value(personId),
-      playId: Value(playId),
-      positionIndex: Value(positionIndex),
-    );
-  }
-
-  factory PersonPosition.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return PersonPosition(
-      id: serializer.fromJson<int>(json['id']),
-      personId: serializer.fromJson<int>(json['personId']),
-      playId: serializer.fromJson<int>(json['playId']),
-      positionIndex: serializer.fromJson<int>(json['positionIndex']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'personId': serializer.toJson<int>(personId),
-      'playId': serializer.toJson<int>(playId),
-      'positionIndex': serializer.toJson<int>(positionIndex),
-    };
-  }
-
-  PersonPosition copyWith({
-    int? id,
-    int? personId,
-    int? playId,
-    int? positionIndex,
-  }) => PersonPosition(
-    id: id ?? this.id,
-    personId: personId ?? this.personId,
-    playId: playId ?? this.playId,
-    positionIndex: positionIndex ?? this.positionIndex,
-  );
-  PersonPosition copyWithCompanion(PersonPositionsCompanion data) {
-    return PersonPosition(
-      id: data.id.present ? data.id.value : this.id,
-      personId: data.personId.present ? data.personId.value : this.personId,
-      playId: data.playId.present ? data.playId.value : this.playId,
-      positionIndex: data.positionIndex.present
-          ? data.positionIndex.value
-          : this.positionIndex,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('PersonPosition(')
-          ..write('id: $id, ')
-          ..write('personId: $personId, ')
-          ..write('playId: $playId, ')
-          ..write('positionIndex: $positionIndex')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(id, personId, playId, positionIndex);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is PersonPosition &&
-          other.id == this.id &&
-          other.personId == this.personId &&
-          other.playId == this.playId &&
-          other.positionIndex == this.positionIndex);
-}
-
-class PersonPositionsCompanion extends UpdateCompanion<PersonPosition> {
-  final Value<int> id;
-  final Value<int> personId;
-  final Value<int> playId;
-  final Value<int> positionIndex;
-  const PersonPositionsCompanion({
-    this.id = const Value.absent(),
-    this.personId = const Value.absent(),
-    this.playId = const Value.absent(),
-    this.positionIndex = const Value.absent(),
-  });
-  PersonPositionsCompanion.insert({
-    this.id = const Value.absent(),
-    required int personId,
-    required int playId,
-    required int positionIndex,
-  }) : personId = Value(personId),
-       playId = Value(playId),
-       positionIndex = Value(positionIndex);
-  static Insertable<PersonPosition> custom({
-    Expression<int>? id,
-    Expression<int>? personId,
-    Expression<int>? playId,
-    Expression<int>? positionIndex,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (personId != null) 'person_id': personId,
-      if (playId != null) 'play_id': playId,
-      if (positionIndex != null) 'position_index': positionIndex,
-    });
-  }
-
-  PersonPositionsCompanion copyWith({
-    Value<int>? id,
-    Value<int>? personId,
-    Value<int>? playId,
-    Value<int>? positionIndex,
-  }) {
-    return PersonPositionsCompanion(
-      id: id ?? this.id,
-      personId: personId ?? this.personId,
-      playId: playId ?? this.playId,
-      positionIndex: positionIndex ?? this.positionIndex,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (personId.present) {
-      map['person_id'] = Variable<int>(personId.value);
-    }
-    if (playId.present) {
-      map['play_id'] = Variable<int>(playId.value);
-    }
-    if (positionIndex.present) {
-      map['position_index'] = Variable<int>(positionIndex.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('PersonPositionsCompanion(')
-          ..write('id: $id, ')
-          ..write('personId: $personId, ')
-          ..write('playId: $playId, ')
-          ..write('positionIndex: $positionIndex')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $PlayPositionsTable extends PlayPositions
-    with TableInfo<$PlayPositionsTable, PlayPosition> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $PlayPositionsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _playIdMeta = const VerificationMeta('playId');
-  @override
-  late final GeneratedColumn<int> playId = GeneratedColumn<int>(
-    'play_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES plays (id) ON DELETE CASCADE',
-    ),
-  );
-  static const VerificationMeta _positionIndexMeta = const VerificationMeta(
-    'positionIndex',
-  );
-  @override
-  late final GeneratedColumn<int> positionIndex = GeneratedColumn<int>(
-    'position_index',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _labelMeta = const VerificationMeta('label');
-  @override
-  late final GeneratedColumn<String> label = GeneratedColumn<String>(
-    'label',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [id, playId, positionIndex, label];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'play_positions';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<PlayPosition> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('play_id')) {
-      context.handle(
-        _playIdMeta,
-        playId.isAcceptableOrUnknown(data['play_id']!, _playIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_playIdMeta);
-    }
-    if (data.containsKey('position_index')) {
-      context.handle(
-        _positionIndexMeta,
-        positionIndex.isAcceptableOrUnknown(
-          data['position_index']!,
-          _positionIndexMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_positionIndexMeta);
-    }
-    if (data.containsKey('label')) {
-      context.handle(
-        _labelMeta,
-        label.isAcceptableOrUnknown(data['label']!, _labelMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_labelMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {playId, positionIndex},
-  ];
-  @override
-  PlayPosition map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return PlayPosition(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      playId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}play_id'],
-      )!,
-      positionIndex: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}position_index'],
-      )!,
-      label: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}label'],
-      )!,
-    );
-  }
-
-  @override
-  $PlayPositionsTable createAlias(String alias) {
-    return $PlayPositionsTable(attachedDatabase, alias);
-  }
-}
-
-class PlayPosition extends DataClass implements Insertable<PlayPosition> {
-  final int id;
-  final int playId;
-  final int positionIndex;
-  final String label;
-  const PlayPosition({
-    required this.id,
-    required this.playId,
-    required this.positionIndex,
-    required this.label,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    map['play_id'] = Variable<int>(playId);
-    map['position_index'] = Variable<int>(positionIndex);
-    map['label'] = Variable<String>(label);
-    return map;
-  }
-
-  PlayPositionsCompanion toCompanion(bool nullToAbsent) {
-    return PlayPositionsCompanion(
-      id: Value(id),
-      playId: Value(playId),
-      positionIndex: Value(positionIndex),
-      label: Value(label),
-    );
-  }
-
-  factory PlayPosition.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return PlayPosition(
-      id: serializer.fromJson<int>(json['id']),
-      playId: serializer.fromJson<int>(json['playId']),
-      positionIndex: serializer.fromJson<int>(json['positionIndex']),
-      label: serializer.fromJson<String>(json['label']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'playId': serializer.toJson<int>(playId),
-      'positionIndex': serializer.toJson<int>(positionIndex),
-      'label': serializer.toJson<String>(label),
-    };
-  }
-
-  PlayPosition copyWith({
-    int? id,
-    int? playId,
-    int? positionIndex,
-    String? label,
-  }) => PlayPosition(
-    id: id ?? this.id,
-    playId: playId ?? this.playId,
-    positionIndex: positionIndex ?? this.positionIndex,
-    label: label ?? this.label,
-  );
-  PlayPosition copyWithCompanion(PlayPositionsCompanion data) {
-    return PlayPosition(
-      id: data.id.present ? data.id.value : this.id,
-      playId: data.playId.present ? data.playId.value : this.playId,
-      positionIndex: data.positionIndex.present
-          ? data.positionIndex.value
-          : this.positionIndex,
-      label: data.label.present ? data.label.value : this.label,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('PlayPosition(')
-          ..write('id: $id, ')
-          ..write('playId: $playId, ')
-          ..write('positionIndex: $positionIndex, ')
-          ..write('label: $label')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(id, playId, positionIndex, label);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is PlayPosition &&
-          other.id == this.id &&
-          other.playId == this.playId &&
-          other.positionIndex == this.positionIndex &&
-          other.label == this.label);
-}
-
-class PlayPositionsCompanion extends UpdateCompanion<PlayPosition> {
-  final Value<int> id;
-  final Value<int> playId;
-  final Value<int> positionIndex;
-  final Value<String> label;
-  const PlayPositionsCompanion({
-    this.id = const Value.absent(),
-    this.playId = const Value.absent(),
-    this.positionIndex = const Value.absent(),
-    this.label = const Value.absent(),
-  });
-  PlayPositionsCompanion.insert({
-    this.id = const Value.absent(),
-    required int playId,
-    required int positionIndex,
-    required String label,
-  }) : playId = Value(playId),
-       positionIndex = Value(positionIndex),
-       label = Value(label);
-  static Insertable<PlayPosition> custom({
-    Expression<int>? id,
-    Expression<int>? playId,
-    Expression<int>? positionIndex,
-    Expression<String>? label,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (playId != null) 'play_id': playId,
-      if (positionIndex != null) 'position_index': positionIndex,
-      if (label != null) 'label': label,
-    });
-  }
-
-  PlayPositionsCompanion copyWith({
-    Value<int>? id,
-    Value<int>? playId,
-    Value<int>? positionIndex,
-    Value<String>? label,
-  }) {
-    return PlayPositionsCompanion(
-      id: id ?? this.id,
-      playId: playId ?? this.playId,
-      positionIndex: positionIndex ?? this.positionIndex,
-      label: label ?? this.label,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (playId.present) {
-      map['play_id'] = Variable<int>(playId.value);
-    }
-    if (positionIndex.present) {
-      map['position_index'] = Variable<int>(positionIndex.value);
-    }
-    if (label.present) {
-      map['label'] = Variable<String>(label.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('PlayPositionsCompanion(')
-          ..write('id: $id, ')
-          ..write('playId: $playId, ')
-          ..write('positionIndex: $positionIndex, ')
-          ..write('label: $label')
           ..write(')'))
         .toString();
   }
@@ -2774,15 +2421,13 @@ class LineupTemplateSlotsCompanion extends UpdateCompanion<LineupTemplateSlot> {
   }
 }
 
-abstract class _$AppDatabase extends GeneratedDatabase {
-  _$AppDatabase(QueryExecutor e) : super(e);
-  $AppDatabaseManager get managers => $AppDatabaseManager(this);
+abstract class _$V6Database extends GeneratedDatabase {
+  _$V6Database(QueryExecutor e) : super(e);
+  $V6DatabaseManager get managers => $V6DatabaseManager(this);
   late final $PersonsTable persons = $PersonsTable(this);
+  late final $PersonPositionsV6Table personPositionsV6 =
+      $PersonPositionsV6Table(this);
   late final $PlaysTable plays = $PlaysTable(this);
-  late final $PersonPositionsTable personPositions = $PersonPositionsTable(
-    this,
-  );
-  late final $PlayPositionsTable playPositions = $PlayPositionsTable(this);
   late final $LineupSlotsTable lineupSlots = $LineupSlotsTable(this);
   late final $MainMembersTable mainMembers = $MainMembersTable(this);
   late final $SubMembersTable subMembers = $SubMembersTable(this);
@@ -2797,9 +2442,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     persons,
+    personPositionsV6,
     plays,
-    personPositions,
-    playPositions,
     lineupSlots,
     mainMembers,
     subMembers,
@@ -2814,20 +2458,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('person_positions', kind: UpdateKind.delete)],
-    ),
-    WritePropagation(
-      on: TableUpdateQuery.onTableName(
-        'plays',
-        limitUpdateKind: UpdateKind.delete,
-      ),
-      result: [TableUpdate('person_positions', kind: UpdateKind.delete)],
-    ),
-    WritePropagation(
-      on: TableUpdateQuery.onTableName(
-        'plays',
-        limitUpdateKind: UpdateKind.delete,
-      ),
-      result: [TableUpdate('play_positions', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -2911,23 +2541,26 @@ typedef $$PersonsTableUpdateCompanionBuilder = PersonsCompanion Function({
 });
 
 final class $$PersonsTableReferences
-    extends BaseReferences<_$AppDatabase, $PersonsTable, Person> {
+    extends BaseReferences<_$V6Database, $PersonsTable, Person> {
   $$PersonsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$PersonPositionsTable, List<PersonPosition>>
-  _personPositionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.personPositions,
+  static MultiTypedResultKey<
+    $PersonPositionsV6Table,
+    List<PersonPositionsV6Data>
+  >
+  _personPositionsV6RefsTable(_$V6Database db) => MultiTypedResultKey.fromTable(
+    db.personPositionsV6,
     aliasName: 'persons__id__person_positions__person_id',
   );
 
-  $$PersonPositionsTableProcessedTableManager get personPositionsRefs {
-    final manager = $$PersonPositionsTableTableManager(
+  $$PersonPositionsV6TableProcessedTableManager get personPositionsV6Refs {
+    final manager = $$PersonPositionsV6TableTableManager(
       $_db,
-      $_db.personPositions,
+      $_db.personPositionsV6,
     ).filter((f) => f.personId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(
-      _personPositionsRefsTable($_db),
+      _personPositionsV6RefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -2935,7 +2568,7 @@ final class $$PersonsTableReferences
   }
 
   static MultiTypedResultKey<$LineupSlotsTable, List<LineupSlot>>
-  _lineupSlotsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  _lineupSlotsRefsTable(_$V6Database db) => MultiTypedResultKey.fromTable(
     db.lineupSlots,
     aliasName: 'persons__id__lineup_slots__person_id',
   );
@@ -2953,7 +2586,7 @@ final class $$PersonsTableReferences
   }
 
   static MultiTypedResultKey<$MainMembersTable, List<MainMember>>
-  _mainMembersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  _mainMembersRefsTable(_$V6Database db) => MultiTypedResultKey.fromTable(
     db.mainMembers,
     aliasName: 'persons__id__main_members__person_id',
   );
@@ -2971,7 +2604,7 @@ final class $$PersonsTableReferences
   }
 
   static MultiTypedResultKey<$SubMembersTable, List<SubMember>>
-  _subMembersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  _subMembersRefsTable(_$V6Database db) => MultiTypedResultKey.fromTable(
     db.subMembers,
     aliasName: 'persons__id__sub_members__person_id',
   );
@@ -2992,7 +2625,7 @@ final class $$PersonsTableReferences
     $LineupTemplateSlotsTable,
     List<LineupTemplateSlot>
   >
-  _lineupTemplateSlotsRefsTable(_$AppDatabase db) =>
+  _lineupTemplateSlotsRefsTable(_$V6Database db) =>
       MultiTypedResultKey.fromTable(
         db.lineupTemplateSlots,
         aliasName: 'persons__id__lineup_template_slots__person_id',
@@ -3014,7 +2647,7 @@ final class $$PersonsTableReferences
 }
 
 class $$PersonsTableFilterComposer
-    extends Composer<_$AppDatabase, $PersonsTable> {
+    extends Composer<_$V6Database, $PersonsTable> {
   $$PersonsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -3047,22 +2680,22 @@ class $$PersonsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  Expression<bool> personPositionsRefs(
-    Expression<bool> Function($$PersonPositionsTableFilterComposer f) f,
+  Expression<bool> personPositionsV6Refs(
+    Expression<bool> Function($$PersonPositionsV6TableFilterComposer f) f,
   ) {
-    final $$PersonPositionsTableFilterComposer composer = $composerBuilder(
+    final $$PersonPositionsV6TableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.personPositions,
+      referencedTable: $db.personPositionsV6,
       getReferencedColumn: (t) => t.personId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$PersonPositionsTableFilterComposer(
+          }) => $$PersonPositionsV6TableFilterComposer(
             $db: $db,
-            $table: $db.personPositions,
+            $table: $db.personPositionsV6,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -3174,7 +2807,7 @@ class $$PersonsTableFilterComposer
 }
 
 class $$PersonsTableOrderingComposer
-    extends Composer<_$AppDatabase, $PersonsTable> {
+    extends Composer<_$V6Database, $PersonsTable> {
   $$PersonsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -3209,7 +2842,7 @@ class $$PersonsTableOrderingComposer
 }
 
 class $$PersonsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $PersonsTable> {
+    extends Composer<_$V6Database, $PersonsTable> {
   $$PersonsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -3232,28 +2865,29 @@ class $$PersonsTableAnnotationComposer
   GeneratedColumn<bool> get guest =>
       $composableBuilder(column: $table.guest, builder: (column) => column);
 
-  Expression<T> personPositionsRefs<T extends Object>(
-    Expression<T> Function($$PersonPositionsTableAnnotationComposer a) f,
+  Expression<T> personPositionsV6Refs<T extends Object>(
+    Expression<T> Function($$PersonPositionsV6TableAnnotationComposer a) f,
   ) {
-    final $$PersonPositionsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.personPositions,
-      getReferencedColumn: (t) => t.personId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PersonPositionsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.personPositions,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
+    final $$PersonPositionsV6TableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.personPositionsV6,
+          getReferencedColumn: (t) => t.personId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
                 $removeJoinBuilderFromRootComposer,
-          ),
-    );
+              }) => $$PersonPositionsV6TableAnnotationComposer(
+                $db: $db,
+                $table: $db.personPositionsV6,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 
@@ -3362,7 +2996,7 @@ class $$PersonsTableAnnotationComposer
 class $$PersonsTableTableManager
     extends
         RootTableManager<
-          _$AppDatabase,
+          _$V6Database,
           $PersonsTable,
           Person,
           $$PersonsTableFilterComposer,
@@ -3373,14 +3007,14 @@ class $$PersonsTableTableManager
           (Person, $$PersonsTableReferences),
           Person,
           PrefetchHooks Function({
-            bool personPositionsRefs,
+            bool personPositionsV6Refs,
             bool lineupSlotsRefs,
             bool mainMembersRefs,
             bool subMembersRefs,
             bool lineupTemplateSlotsRefs,
           })
         > {
-  $$PersonsTableTableManager(_$AppDatabase db, $PersonsTable table)
+  $$PersonsTableTableManager(_$V6Database db, $PersonsTable table)
     : super(
         TableManagerState(
           db: db,
@@ -3429,7 +3063,7 @@ class $$PersonsTableTableManager
               .toList(),
           prefetchHooksCallback:
               ({
-                personPositionsRefs = false,
+                personPositionsV6Refs = false,
                 lineupSlotsRefs = false,
                 mainMembersRefs = false,
                 subMembersRefs = false,
@@ -3438,7 +3072,7 @@ class $$PersonsTableTableManager
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
-                    if (personPositionsRefs) db.personPositions,
+                    if (personPositionsV6Refs) db.personPositionsV6,
                     if (lineupSlotsRefs) db.lineupSlots,
                     if (mainMembersRefs) db.mainMembers,
                     if (subMembersRefs) db.subMembers,
@@ -3447,21 +3081,21 @@ class $$PersonsTableTableManager
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
-                      if (personPositionsRefs)
+                      if (personPositionsV6Refs)
                         await $_getPrefetchedData<
                           Person,
                           $PersonsTable,
-                          PersonPosition
+                          PersonPositionsV6Data
                         >(
                           currentTable: table,
                           referencedTable: $$PersonsTableReferences
-                              ._personPositionsRefsTable(db),
+                              ._personPositionsV6RefsTable(db),
                           managerFromTypedResult: (p0) =>
                               $$PersonsTableReferences(
                                 db,
                                 table,
                                 p0,
-                              ).personPositionsRefs,
+                              ).personPositionsV6Refs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.personId == item.id,
@@ -3562,7 +3196,7 @@ class $$PersonsTableTableManager
 
 typedef $$PersonsTableProcessedTableManager =
     ProcessedTableManager<
-      _$AppDatabase,
+      _$V6Database,
       $PersonsTable,
       Person,
       $$PersonsTableFilterComposer,
@@ -3573,12 +3207,301 @@ typedef $$PersonsTableProcessedTableManager =
       (Person, $$PersonsTableReferences),
       Person,
       PrefetchHooks Function({
-        bool personPositionsRefs,
+        bool personPositionsV6Refs,
         bool lineupSlotsRefs,
         bool mainMembersRefs,
         bool subMembersRefs,
         bool lineupTemplateSlotsRefs,
       })
+    >;
+typedef $$PersonPositionsV6TableCreateCompanionBuilder =
+    PersonPositionsV6Companion Function({
+      Value<int> id,
+      required int personId,
+      required int positionIndex,
+    });
+typedef $$PersonPositionsV6TableUpdateCompanionBuilder =
+    PersonPositionsV6Companion Function({
+      Value<int> id,
+      Value<int> personId,
+      Value<int> positionIndex,
+    });
+
+final class $$PersonPositionsV6TableReferences
+    extends
+        BaseReferences<
+          _$V6Database,
+          $PersonPositionsV6Table,
+          PersonPositionsV6Data
+        > {
+  $$PersonPositionsV6TableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $PersonsTable _personIdTable(_$V6Database db) =>
+      db.persons.createAlias('person_positions__person_id__persons__id');
+
+  $$PersonsTableProcessedTableManager get personId {
+    final $_column = $_itemColumn<int>('person_id')!;
+
+    final manager = $$PersonsTableTableManager(
+      $_db,
+      $_db.persons,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_personIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$PersonPositionsV6TableFilterComposer
+    extends Composer<_$V6Database, $PersonPositionsV6Table> {
+  $$PersonPositionsV6TableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get positionIndex => $composableBuilder(
+    column: $table.positionIndex,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PersonsTableFilterComposer get personId {
+    final $$PersonsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.personId,
+      referencedTable: $db.persons,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PersonsTableFilterComposer(
+            $db: $db,
+            $table: $db.persons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PersonPositionsV6TableOrderingComposer
+    extends Composer<_$V6Database, $PersonPositionsV6Table> {
+  $$PersonPositionsV6TableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get positionIndex => $composableBuilder(
+    column: $table.positionIndex,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PersonsTableOrderingComposer get personId {
+    final $$PersonsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.personId,
+      referencedTable: $db.persons,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PersonsTableOrderingComposer(
+            $db: $db,
+            $table: $db.persons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PersonPositionsV6TableAnnotationComposer
+    extends Composer<_$V6Database, $PersonPositionsV6Table> {
+  $$PersonPositionsV6TableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get positionIndex => $composableBuilder(
+    column: $table.positionIndex,
+    builder: (column) => column,
+  );
+
+  $$PersonsTableAnnotationComposer get personId {
+    final $$PersonsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.personId,
+      referencedTable: $db.persons,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PersonsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.persons,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$PersonPositionsV6TableTableManager
+    extends
+        RootTableManager<
+          _$V6Database,
+          $PersonPositionsV6Table,
+          PersonPositionsV6Data,
+          $$PersonPositionsV6TableFilterComposer,
+          $$PersonPositionsV6TableOrderingComposer,
+          $$PersonPositionsV6TableAnnotationComposer,
+          $$PersonPositionsV6TableCreateCompanionBuilder,
+          $$PersonPositionsV6TableUpdateCompanionBuilder,
+          (PersonPositionsV6Data, $$PersonPositionsV6TableReferences),
+          PersonPositionsV6Data,
+          PrefetchHooks Function({bool personId})
+        > {
+  $$PersonPositionsV6TableTableManager(
+    _$V6Database db,
+    $PersonPositionsV6Table table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PersonPositionsV6TableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PersonPositionsV6TableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PersonPositionsV6TableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> personId = const Value.absent(),
+                Value<int> positionIndex = const Value.absent(),
+              }) => PersonPositionsV6Companion(
+                id: id,
+                personId: personId,
+                positionIndex: positionIndex,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int personId,
+                required int positionIndex,
+              }) => PersonPositionsV6Companion.insert(
+                id: id,
+                personId: personId,
+                positionIndex: positionIndex,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PersonPositionsV6Table, PersonPositionsV6Data>(
+                    table,
+                  ),
+                  $$PersonPositionsV6TableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({personId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (personId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.personId,
+                        referencedTable: $$PersonPositionsV6TableReferences
+                            ._personIdTable(db),
+                        referencedColumn: $$PersonPositionsV6TableReferences
+                            ._personIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$PersonPositionsV6TableProcessedTableManager =
+    ProcessedTableManager<
+      _$V6Database,
+      $PersonPositionsV6Table,
+      PersonPositionsV6Data,
+      $$PersonPositionsV6TableFilterComposer,
+      $$PersonPositionsV6TableOrderingComposer,
+      $$PersonPositionsV6TableAnnotationComposer,
+      $$PersonPositionsV6TableCreateCompanionBuilder,
+      $$PersonPositionsV6TableUpdateCompanionBuilder,
+      (PersonPositionsV6Data, $$PersonPositionsV6TableReferences),
+      PersonPositionsV6Data,
+      PrefetchHooks Function({bool personId})
     >;
 typedef $$PlaysTableCreateCompanionBuilder = PlaysCompanion Function({
   Value<int> id,
@@ -3592,49 +3515,11 @@ typedef $$PlaysTableUpdateCompanionBuilder = PlaysCompanion Function({
 });
 
 final class $$PlaysTableReferences
-    extends BaseReferences<_$AppDatabase, $PlaysTable, Play> {
+    extends BaseReferences<_$V6Database, $PlaysTable, Play> {
   $$PlaysTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$PersonPositionsTable, List<PersonPosition>>
-  _personPositionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.personPositions,
-    aliasName: 'plays__id__person_positions__play_id',
-  );
-
-  $$PersonPositionsTableProcessedTableManager get personPositionsRefs {
-    final manager = $$PersonPositionsTableTableManager(
-      $_db,
-      $_db.personPositions,
-    ).filter((f) => f.playId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(
-      _personPositionsRefsTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<$PlayPositionsTable, List<PlayPosition>>
-  _playPositionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.playPositions,
-    aliasName: 'plays__id__play_positions__play_id',
-  );
-
-  $$PlayPositionsTableProcessedTableManager get playPositionsRefs {
-    final manager = $$PlayPositionsTableTableManager(
-      $_db,
-      $_db.playPositions,
-    ).filter((f) => f.playId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_playPositionsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
   static MultiTypedResultKey<$LineupSlotsTable, List<LineupSlot>>
-  _lineupSlotsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  _lineupSlotsRefsTable(_$V6Database db) => MultiTypedResultKey.fromTable(
     db.lineupSlots,
     aliasName: 'plays__id__lineup_slots__play_id',
   );
@@ -3652,7 +3537,7 @@ final class $$PlaysTableReferences
   }
 
   static MultiTypedResultKey<$MainMembersTable, List<MainMember>>
-  _mainMembersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  _mainMembersRefsTable(_$V6Database db) => MultiTypedResultKey.fromTable(
     db.mainMembers,
     aliasName: 'plays__id__main_members__play_id',
   );
@@ -3670,7 +3555,7 @@ final class $$PlaysTableReferences
   }
 
   static MultiTypedResultKey<$SubMembersTable, List<SubMember>>
-  _subMembersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  _subMembersRefsTable(_$V6Database db) => MultiTypedResultKey.fromTable(
     db.subMembers,
     aliasName: 'plays__id__sub_members__play_id',
   );
@@ -3688,7 +3573,7 @@ final class $$PlaysTableReferences
   }
 
   static MultiTypedResultKey<$LineupTemplatesTable, List<LineupTemplate>>
-  _lineupTemplatesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  _lineupTemplatesRefsTable(_$V6Database db) => MultiTypedResultKey.fromTable(
     db.lineupTemplates,
     aliasName: 'plays__id__lineup_templates__play_id',
   );
@@ -3708,7 +3593,7 @@ final class $$PlaysTableReferences
   }
 }
 
-class $$PlaysTableFilterComposer extends Composer<_$AppDatabase, $PlaysTable> {
+class $$PlaysTableFilterComposer extends Composer<_$V6Database, $PlaysTable> {
   $$PlaysTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -3730,56 +3615,6 @@ class $$PlaysTableFilterComposer extends Composer<_$AppDatabase, $PlaysTable> {
     column: $table.name,
     builder: (column) => ColumnFilters(column),
   );
-
-  Expression<bool> personPositionsRefs(
-    Expression<bool> Function($$PersonPositionsTableFilterComposer f) f,
-  ) {
-    final $$PersonPositionsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.personPositions,
-      getReferencedColumn: (t) => t.playId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PersonPositionsTableFilterComposer(
-            $db: $db,
-            $table: $db.personPositions,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> playPositionsRefs(
-    Expression<bool> Function($$PlayPositionsTableFilterComposer f) f,
-  ) {
-    final $$PlayPositionsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.playPositions,
-      getReferencedColumn: (t) => t.playId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PlayPositionsTableFilterComposer(
-            $db: $db,
-            $table: $db.playPositions,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 
   Expression<bool> lineupSlotsRefs(
     Expression<bool> Function($$LineupSlotsTableFilterComposer f) f,
@@ -3882,8 +3717,7 @@ class $$PlaysTableFilterComposer extends Composer<_$AppDatabase, $PlaysTable> {
   }
 }
 
-class $$PlaysTableOrderingComposer
-    extends Composer<_$AppDatabase, $PlaysTable> {
+class $$PlaysTableOrderingComposer extends Composer<_$V6Database, $PlaysTable> {
   $$PlaysTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -3908,7 +3742,7 @@ class $$PlaysTableOrderingComposer
 }
 
 class $$PlaysTableAnnotationComposer
-    extends Composer<_$AppDatabase, $PlaysTable> {
+    extends Composer<_$V6Database, $PlaysTable> {
   $$PlaysTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -3924,56 +3758,6 @@ class $$PlaysTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
-
-  Expression<T> personPositionsRefs<T extends Object>(
-    Expression<T> Function($$PersonPositionsTableAnnotationComposer a) f,
-  ) {
-    final $$PersonPositionsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.personPositions,
-      getReferencedColumn: (t) => t.playId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PersonPositionsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.personPositions,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<T> playPositionsRefs<T extends Object>(
-    Expression<T> Function($$PlayPositionsTableAnnotationComposer a) f,
-  ) {
-    final $$PlayPositionsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.playPositions,
-      getReferencedColumn: (t) => t.playId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PlayPositionsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.playPositions,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 
   Expression<T> lineupSlotsRefs<T extends Object>(
     Expression<T> Function($$LineupSlotsTableAnnotationComposer a) f,
@@ -4079,7 +3863,7 @@ class $$PlaysTableAnnotationComposer
 class $$PlaysTableTableManager
     extends
         RootTableManager<
-          _$AppDatabase,
+          _$V6Database,
           $PlaysTable,
           Play,
           $$PlaysTableFilterComposer,
@@ -4090,15 +3874,13 @@ class $$PlaysTableTableManager
           (Play, $$PlaysTableReferences),
           Play,
           PrefetchHooks Function({
-            bool personPositionsRefs,
-            bool playPositionsRefs,
             bool lineupSlotsRefs,
             bool mainMembersRefs,
             bool subMembersRefs,
             bool lineupTemplatesRefs,
           })
         > {
-  $$PlaysTableTableManager(_$AppDatabase db, $PlaysTable table)
+  $$PlaysTableTableManager(_$V6Database db, $PlaysTable table)
     : super(
         TableManagerState(
           db: db,
@@ -4129,8 +3911,6 @@ class $$PlaysTableTableManager
               .toList(),
           prefetchHooksCallback:
               ({
-                personPositionsRefs = false,
-                playPositionsRefs = false,
                 lineupSlotsRefs = false,
                 mainMembersRefs = false,
                 subMembersRefs = false,
@@ -4139,8 +3919,6 @@ class $$PlaysTableTableManager
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
-                    if (personPositionsRefs) db.personPositions,
-                    if (playPositionsRefs) db.playPositions,
                     if (lineupSlotsRefs) db.lineupSlots,
                     if (mainMembersRefs) db.mainMembers,
                     if (subMembersRefs) db.subMembers,
@@ -4149,48 +3927,6 @@ class $$PlaysTableTableManager
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
-                      if (personPositionsRefs)
-                        await $_getPrefetchedData<
-                          Play,
-                          $PlaysTable,
-                          PersonPosition
-                        >(
-                          currentTable: table,
-                          referencedTable: $$PlaysTableReferences
-                              ._personPositionsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$PlaysTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).personPositionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.playId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (playPositionsRefs)
-                        await $_getPrefetchedData<
-                          Play,
-                          $PlaysTable,
-                          PlayPosition
-                        >(
-                          currentTable: table,
-                          referencedTable: $$PlaysTableReferences
-                              ._playPositionsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$PlaysTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).playPositionsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.playId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
                       if (lineupSlotsRefs)
                         await $_getPrefetchedData<
                           Play,
@@ -4281,7 +4017,7 @@ class $$PlaysTableTableManager
 
 typedef $$PlaysTableProcessedTableManager =
     ProcessedTableManager<
-      _$AppDatabase,
+      _$V6Database,
       $PlaysTable,
       Play,
       $$PlaysTableFilterComposer,
@@ -4292,692 +4028,11 @@ typedef $$PlaysTableProcessedTableManager =
       (Play, $$PlaysTableReferences),
       Play,
       PrefetchHooks Function({
-        bool personPositionsRefs,
-        bool playPositionsRefs,
         bool lineupSlotsRefs,
         bool mainMembersRefs,
         bool subMembersRefs,
         bool lineupTemplatesRefs,
       })
-    >;
-typedef $$PersonPositionsTableCreateCompanionBuilder =
-    PersonPositionsCompanion Function({
-      Value<int> id,
-      required int personId,
-      required int playId,
-      required int positionIndex,
-    });
-typedef $$PersonPositionsTableUpdateCompanionBuilder =
-    PersonPositionsCompanion Function({
-      Value<int> id,
-      Value<int> personId,
-      Value<int> playId,
-      Value<int> positionIndex,
-    });
-
-final class $$PersonPositionsTableReferences
-    extends
-        BaseReferences<_$AppDatabase, $PersonPositionsTable, PersonPosition> {
-  $$PersonPositionsTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static $PersonsTable _personIdTable(_$AppDatabase db) =>
-      db.persons.createAlias('person_positions__person_id__persons__id');
-
-  $$PersonsTableProcessedTableManager get personId {
-    final $_column = $_itemColumn<int>('person_id')!;
-
-    final manager = $$PersonsTableTableManager(
-      $_db,
-      $_db.persons,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_personIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static $PlaysTable _playIdTable(_$AppDatabase db) =>
-      db.plays.createAlias('person_positions__play_id__plays__id');
-
-  $$PlaysTableProcessedTableManager get playId {
-    final $_column = $_itemColumn<int>('play_id')!;
-
-    final manager = $$PlaysTableTableManager(
-      $_db,
-      $_db.plays,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_playIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-}
-
-class $$PersonPositionsTableFilterComposer
-    extends Composer<_$AppDatabase, $PersonPositionsTable> {
-  $$PersonPositionsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get positionIndex => $composableBuilder(
-    column: $table.positionIndex,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  $$PersonsTableFilterComposer get personId {
-    final $$PersonsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.personId,
-      referencedTable: $db.persons,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PersonsTableFilterComposer(
-            $db: $db,
-            $table: $db.persons,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$PlaysTableFilterComposer get playId {
-    final $$PlaysTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.playId,
-      referencedTable: $db.plays,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PlaysTableFilterComposer(
-            $db: $db,
-            $table: $db.plays,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$PersonPositionsTableOrderingComposer
-    extends Composer<_$AppDatabase, $PersonPositionsTable> {
-  $$PersonPositionsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get positionIndex => $composableBuilder(
-    column: $table.positionIndex,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$PersonsTableOrderingComposer get personId {
-    final $$PersonsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.personId,
-      referencedTable: $db.persons,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PersonsTableOrderingComposer(
-            $db: $db,
-            $table: $db.persons,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$PlaysTableOrderingComposer get playId {
-    final $$PlaysTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.playId,
-      referencedTable: $db.plays,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PlaysTableOrderingComposer(
-            $db: $db,
-            $table: $db.plays,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$PersonPositionsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $PersonPositionsTable> {
-  $$PersonPositionsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<int> get positionIndex => $composableBuilder(
-    column: $table.positionIndex,
-    builder: (column) => column,
-  );
-
-  $$PersonsTableAnnotationComposer get personId {
-    final $$PersonsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.personId,
-      referencedTable: $db.persons,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PersonsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.persons,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$PlaysTableAnnotationComposer get playId {
-    final $$PlaysTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.playId,
-      referencedTable: $db.plays,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PlaysTableAnnotationComposer(
-            $db: $db,
-            $table: $db.plays,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$PersonPositionsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $PersonPositionsTable,
-          PersonPosition,
-          $$PersonPositionsTableFilterComposer,
-          $$PersonPositionsTableOrderingComposer,
-          $$PersonPositionsTableAnnotationComposer,
-          $$PersonPositionsTableCreateCompanionBuilder,
-          $$PersonPositionsTableUpdateCompanionBuilder,
-          (PersonPosition, $$PersonPositionsTableReferences),
-          PersonPosition,
-          PrefetchHooks Function({bool personId, bool playId})
-        > {
-  $$PersonPositionsTableTableManager(
-    _$AppDatabase db,
-    $PersonPositionsTable table,
-  ) : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$PersonPositionsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$PersonPositionsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$PersonPositionsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<int> personId = const Value.absent(),
-                Value<int> playId = const Value.absent(),
-                Value<int> positionIndex = const Value.absent(),
-              }) => PersonPositionsCompanion(
-                id: id,
-                personId: personId,
-                playId: playId,
-                positionIndex: positionIndex,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required int personId,
-                required int playId,
-                required int positionIndex,
-              }) => PersonPositionsCompanion.insert(
-                id: id,
-                personId: personId,
-                playId: playId,
-                positionIndex: positionIndex,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<$PersonPositionsTable, PersonPosition>(table),
-                  $$PersonPositionsTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback: ({personId = false, playId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (personId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.personId,
-                        referencedTable: $$PersonPositionsTableReferences
-                            ._personIdTable(db),
-                        referencedColumn: $$PersonPositionsTableReferences
-                            ._personIdTable(db)
-                            .id,
-                      ) as T;
-                    }
-                    if (playId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.playId,
-                        referencedTable: $$PersonPositionsTableReferences
-                            ._playIdTable(db),
-                        referencedColumn: $$PersonPositionsTableReferences
-                            ._playIdTable(db)
-                            .id,
-                      ) as T;
-                    }
-
-                    return state;
-                  },
-              getPrefetchedDataCallback: (items) async {
-                return [];
-              },
-            );
-          },
-        ),
-      );
-}
-
-typedef $$PersonPositionsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $PersonPositionsTable,
-      PersonPosition,
-      $$PersonPositionsTableFilterComposer,
-      $$PersonPositionsTableOrderingComposer,
-      $$PersonPositionsTableAnnotationComposer,
-      $$PersonPositionsTableCreateCompanionBuilder,
-      $$PersonPositionsTableUpdateCompanionBuilder,
-      (PersonPosition, $$PersonPositionsTableReferences),
-      PersonPosition,
-      PrefetchHooks Function({bool personId, bool playId})
-    >;
-typedef $$PlayPositionsTableCreateCompanionBuilder =
-    PlayPositionsCompanion Function({
-      Value<int> id,
-      required int playId,
-      required int positionIndex,
-      required String label,
-    });
-typedef $$PlayPositionsTableUpdateCompanionBuilder =
-    PlayPositionsCompanion Function({
-      Value<int> id,
-      Value<int> playId,
-      Value<int> positionIndex,
-      Value<String> label,
-    });
-
-final class $$PlayPositionsTableReferences
-    extends BaseReferences<_$AppDatabase, $PlayPositionsTable, PlayPosition> {
-  $$PlayPositionsTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static $PlaysTable _playIdTable(_$AppDatabase db) =>
-      db.plays.createAlias('play_positions__play_id__plays__id');
-
-  $$PlaysTableProcessedTableManager get playId {
-    final $_column = $_itemColumn<int>('play_id')!;
-
-    final manager = $$PlaysTableTableManager(
-      $_db,
-      $_db.plays,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_playIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-}
-
-class $$PlayPositionsTableFilterComposer
-    extends Composer<_$AppDatabase, $PlayPositionsTable> {
-  $$PlayPositionsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get positionIndex => $composableBuilder(
-    column: $table.positionIndex,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get label => $composableBuilder(
-    column: $table.label,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  $$PlaysTableFilterComposer get playId {
-    final $$PlaysTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.playId,
-      referencedTable: $db.plays,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PlaysTableFilterComposer(
-            $db: $db,
-            $table: $db.plays,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$PlayPositionsTableOrderingComposer
-    extends Composer<_$AppDatabase, $PlayPositionsTable> {
-  $$PlayPositionsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get positionIndex => $composableBuilder(
-    column: $table.positionIndex,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get label => $composableBuilder(
-    column: $table.label,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  $$PlaysTableOrderingComposer get playId {
-    final $$PlaysTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.playId,
-      referencedTable: $db.plays,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PlaysTableOrderingComposer(
-            $db: $db,
-            $table: $db.plays,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$PlayPositionsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $PlayPositionsTable> {
-  $$PlayPositionsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<int> get positionIndex => $composableBuilder(
-    column: $table.positionIndex,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get label =>
-      $composableBuilder(column: $table.label, builder: (column) => column);
-
-  $$PlaysTableAnnotationComposer get playId {
-    final $$PlaysTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.playId,
-      referencedTable: $db.plays,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$PlaysTableAnnotationComposer(
-            $db: $db,
-            $table: $db.plays,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$PlayPositionsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $PlayPositionsTable,
-          PlayPosition,
-          $$PlayPositionsTableFilterComposer,
-          $$PlayPositionsTableOrderingComposer,
-          $$PlayPositionsTableAnnotationComposer,
-          $$PlayPositionsTableCreateCompanionBuilder,
-          $$PlayPositionsTableUpdateCompanionBuilder,
-          (PlayPosition, $$PlayPositionsTableReferences),
-          PlayPosition,
-          PrefetchHooks Function({bool playId})
-        > {
-  $$PlayPositionsTableTableManager(_$AppDatabase db, $PlayPositionsTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$PlayPositionsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$PlayPositionsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$PlayPositionsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<int> playId = const Value.absent(),
-                Value<int> positionIndex = const Value.absent(),
-                Value<String> label = const Value.absent(),
-              }) => PlayPositionsCompanion(
-                id: id,
-                playId: playId,
-                positionIndex: positionIndex,
-                label: label,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required int playId,
-                required int positionIndex,
-                required String label,
-              }) => PlayPositionsCompanion.insert(
-                id: id,
-                playId: playId,
-                positionIndex: positionIndex,
-                label: label,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable<$PlayPositionsTable, PlayPosition>(table),
-                  $$PlayPositionsTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback: ({playId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (playId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.playId,
-                        referencedTable: $$PlayPositionsTableReferences
-                            ._playIdTable(db),
-                        referencedColumn: $$PlayPositionsTableReferences
-                            ._playIdTable(db)
-                            .id,
-                      ) as T;
-                    }
-
-                    return state;
-                  },
-              getPrefetchedDataCallback: (items) async {
-                return [];
-              },
-            );
-          },
-        ),
-      );
-}
-
-typedef $$PlayPositionsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $PlayPositionsTable,
-      PlayPosition,
-      $$PlayPositionsTableFilterComposer,
-      $$PlayPositionsTableOrderingComposer,
-      $$PlayPositionsTableAnnotationComposer,
-      $$PlayPositionsTableCreateCompanionBuilder,
-      $$PlayPositionsTableUpdateCompanionBuilder,
-      (PlayPosition, $$PlayPositionsTableReferences),
-      PlayPosition,
-      PrefetchHooks Function({bool playId})
     >;
 typedef $$LineupSlotsTableCreateCompanionBuilder =
     LineupSlotsCompanion Function({
@@ -4995,10 +4050,10 @@ typedef $$LineupSlotsTableUpdateCompanionBuilder =
     });
 
 final class $$LineupSlotsTableReferences
-    extends BaseReferences<_$AppDatabase, $LineupSlotsTable, LineupSlot> {
+    extends BaseReferences<_$V6Database, $LineupSlotsTable, LineupSlot> {
   $$LineupSlotsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $PlaysTable _playIdTable(_$AppDatabase db) =>
+  static $PlaysTable _playIdTable(_$V6Database db) =>
       db.plays.createAlias('lineup_slots__play_id__plays__id');
 
   $$PlaysTableProcessedTableManager get playId {
@@ -5015,7 +4070,7 @@ final class $$LineupSlotsTableReferences
     );
   }
 
-  static $PersonsTable _personIdTable(_$AppDatabase db) =>
+  static $PersonsTable _personIdTable(_$V6Database db) =>
       db.persons.createAlias('lineup_slots__person_id__persons__id');
 
   $$PersonsTableProcessedTableManager? get personId {
@@ -5034,7 +4089,7 @@ final class $$LineupSlotsTableReferences
 }
 
 class $$LineupSlotsTableFilterComposer
-    extends Composer<_$AppDatabase, $LineupSlotsTable> {
+    extends Composer<_$V6Database, $LineupSlotsTable> {
   $$LineupSlotsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -5100,7 +4155,7 @@ class $$LineupSlotsTableFilterComposer
 }
 
 class $$LineupSlotsTableOrderingComposer
-    extends Composer<_$AppDatabase, $LineupSlotsTable> {
+    extends Composer<_$V6Database, $LineupSlotsTable> {
   $$LineupSlotsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -5166,7 +4221,7 @@ class $$LineupSlotsTableOrderingComposer
 }
 
 class $$LineupSlotsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $LineupSlotsTable> {
+    extends Composer<_$V6Database, $LineupSlotsTable> {
   $$LineupSlotsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -5232,7 +4287,7 @@ class $$LineupSlotsTableAnnotationComposer
 class $$LineupSlotsTableTableManager
     extends
         RootTableManager<
-          _$AppDatabase,
+          _$V6Database,
           $LineupSlotsTable,
           LineupSlot,
           $$LineupSlotsTableFilterComposer,
@@ -5244,7 +4299,7 @@ class $$LineupSlotsTableTableManager
           LineupSlot,
           PrefetchHooks Function({bool playId, bool personId})
         > {
-  $$LineupSlotsTableTableManager(_$AppDatabase db, $LineupSlotsTable table)
+  $$LineupSlotsTableTableManager(_$V6Database db, $LineupSlotsTable table)
     : super(
         TableManagerState(
           db: db,
@@ -5343,7 +4398,7 @@ class $$LineupSlotsTableTableManager
 
 typedef $$LineupSlotsTableProcessedTableManager =
     ProcessedTableManager<
-      _$AppDatabase,
+      _$V6Database,
       $LineupSlotsTable,
       LineupSlot,
       $$LineupSlotsTableFilterComposer,
@@ -5371,10 +4426,10 @@ typedef $$MainMembersTableUpdateCompanionBuilder =
     });
 
 final class $$MainMembersTableReferences
-    extends BaseReferences<_$AppDatabase, $MainMembersTable, MainMember> {
+    extends BaseReferences<_$V6Database, $MainMembersTable, MainMember> {
   $$MainMembersTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $PlaysTable _playIdTable(_$AppDatabase db) =>
+  static $PlaysTable _playIdTable(_$V6Database db) =>
       db.plays.createAlias('main_members__play_id__plays__id');
 
   $$PlaysTableProcessedTableManager get playId {
@@ -5391,7 +4446,7 @@ final class $$MainMembersTableReferences
     );
   }
 
-  static $PersonsTable _personIdTable(_$AppDatabase db) =>
+  static $PersonsTable _personIdTable(_$V6Database db) =>
       db.persons.createAlias('main_members__person_id__persons__id');
 
   $$PersonsTableProcessedTableManager? get personId {
@@ -5410,7 +4465,7 @@ final class $$MainMembersTableReferences
 }
 
 class $$MainMembersTableFilterComposer
-    extends Composer<_$AppDatabase, $MainMembersTable> {
+    extends Composer<_$V6Database, $MainMembersTable> {
   $$MainMembersTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -5476,7 +4531,7 @@ class $$MainMembersTableFilterComposer
 }
 
 class $$MainMembersTableOrderingComposer
-    extends Composer<_$AppDatabase, $MainMembersTable> {
+    extends Composer<_$V6Database, $MainMembersTable> {
   $$MainMembersTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -5542,7 +4597,7 @@ class $$MainMembersTableOrderingComposer
 }
 
 class $$MainMembersTableAnnotationComposer
-    extends Composer<_$AppDatabase, $MainMembersTable> {
+    extends Composer<_$V6Database, $MainMembersTable> {
   $$MainMembersTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -5608,7 +4663,7 @@ class $$MainMembersTableAnnotationComposer
 class $$MainMembersTableTableManager
     extends
         RootTableManager<
-          _$AppDatabase,
+          _$V6Database,
           $MainMembersTable,
           MainMember,
           $$MainMembersTableFilterComposer,
@@ -5620,7 +4675,7 @@ class $$MainMembersTableTableManager
           MainMember,
           PrefetchHooks Function({bool playId, bool personId})
         > {
-  $$MainMembersTableTableManager(_$AppDatabase db, $MainMembersTable table)
+  $$MainMembersTableTableManager(_$V6Database db, $MainMembersTable table)
     : super(
         TableManagerState(
           db: db,
@@ -5719,7 +4774,7 @@ class $$MainMembersTableTableManager
 
 typedef $$MainMembersTableProcessedTableManager =
     ProcessedTableManager<
-      _$AppDatabase,
+      _$V6Database,
       $MainMembersTable,
       MainMember,
       $$MainMembersTableFilterComposer,
@@ -5745,10 +4800,10 @@ typedef $$SubMembersTableUpdateCompanionBuilder = SubMembersCompanion Function({
 });
 
 final class $$SubMembersTableReferences
-    extends BaseReferences<_$AppDatabase, $SubMembersTable, SubMember> {
+    extends BaseReferences<_$V6Database, $SubMembersTable, SubMember> {
   $$SubMembersTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $PlaysTable _playIdTable(_$AppDatabase db) =>
+  static $PlaysTable _playIdTable(_$V6Database db) =>
       db.plays.createAlias('sub_members__play_id__plays__id');
 
   $$PlaysTableProcessedTableManager get playId {
@@ -5765,7 +4820,7 @@ final class $$SubMembersTableReferences
     );
   }
 
-  static $PersonsTable _personIdTable(_$AppDatabase db) =>
+  static $PersonsTable _personIdTable(_$V6Database db) =>
       db.persons.createAlias('sub_members__person_id__persons__id');
 
   $$PersonsTableProcessedTableManager get personId {
@@ -5784,7 +4839,7 @@ final class $$SubMembersTableReferences
 }
 
 class $$SubMembersTableFilterComposer
-    extends Composer<_$AppDatabase, $SubMembersTable> {
+    extends Composer<_$V6Database, $SubMembersTable> {
   $$SubMembersTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -5850,7 +4905,7 @@ class $$SubMembersTableFilterComposer
 }
 
 class $$SubMembersTableOrderingComposer
-    extends Composer<_$AppDatabase, $SubMembersTable> {
+    extends Composer<_$V6Database, $SubMembersTable> {
   $$SubMembersTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -5916,7 +4971,7 @@ class $$SubMembersTableOrderingComposer
 }
 
 class $$SubMembersTableAnnotationComposer
-    extends Composer<_$AppDatabase, $SubMembersTable> {
+    extends Composer<_$V6Database, $SubMembersTable> {
   $$SubMembersTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -5982,7 +5037,7 @@ class $$SubMembersTableAnnotationComposer
 class $$SubMembersTableTableManager
     extends
         RootTableManager<
-          _$AppDatabase,
+          _$V6Database,
           $SubMembersTable,
           SubMember,
           $$SubMembersTableFilterComposer,
@@ -5994,7 +5049,7 @@ class $$SubMembersTableTableManager
           SubMember,
           PrefetchHooks Function({bool playId, bool personId})
         > {
-  $$SubMembersTableTableManager(_$AppDatabase db, $SubMembersTable table)
+  $$SubMembersTableTableManager(_$V6Database db, $SubMembersTable table)
     : super(
         TableManagerState(
           db: db,
@@ -6093,7 +5148,7 @@ class $$SubMembersTableTableManager
 
 typedef $$SubMembersTableProcessedTableManager =
     ProcessedTableManager<
-      _$AppDatabase,
+      _$V6Database,
       $SubMembersTable,
       SubMember,
       $$SubMembersTableFilterComposer,
@@ -6120,14 +5175,14 @@ typedef $$LineupTemplatesTableUpdateCompanionBuilder =
 
 final class $$LineupTemplatesTableReferences
     extends
-        BaseReferences<_$AppDatabase, $LineupTemplatesTable, LineupTemplate> {
+        BaseReferences<_$V6Database, $LineupTemplatesTable, LineupTemplate> {
   $$LineupTemplatesTableReferences(
     super.$_db,
     super.$_table,
     super.$_typedResult,
   );
 
-  static $PlaysTable _playIdTable(_$AppDatabase db) =>
+  static $PlaysTable _playIdTable(_$V6Database db) =>
       db.plays.createAlias('lineup_templates__play_id__plays__id');
 
   $$PlaysTableProcessedTableManager get playId {
@@ -6148,7 +5203,7 @@ final class $$LineupTemplatesTableReferences
     $LineupTemplateSlotsTable,
     List<LineupTemplateSlot>
   >
-  _lineupTemplateSlotsRefsTable(_$AppDatabase db) =>
+  _lineupTemplateSlotsRefsTable(_$V6Database db) =>
       MultiTypedResultKey.fromTable(
         db.lineupTemplateSlots,
         aliasName: 'lineup_templates__id__lineup_template_slots__template_id',
@@ -6170,7 +5225,7 @@ final class $$LineupTemplatesTableReferences
 }
 
 class $$LineupTemplatesTableFilterComposer
-    extends Composer<_$AppDatabase, $LineupTemplatesTable> {
+    extends Composer<_$V6Database, $LineupTemplatesTable> {
   $$LineupTemplatesTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -6238,7 +5293,7 @@ class $$LineupTemplatesTableFilterComposer
 }
 
 class $$LineupTemplatesTableOrderingComposer
-    extends Composer<_$AppDatabase, $LineupTemplatesTable> {
+    extends Composer<_$V6Database, $LineupTemplatesTable> {
   $$LineupTemplatesTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -6281,7 +5336,7 @@ class $$LineupTemplatesTableOrderingComposer
 }
 
 class $$LineupTemplatesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $LineupTemplatesTable> {
+    extends Composer<_$V6Database, $LineupTemplatesTable> {
   $$LineupTemplatesTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -6348,7 +5403,7 @@ class $$LineupTemplatesTableAnnotationComposer
 class $$LineupTemplatesTableTableManager
     extends
         RootTableManager<
-          _$AppDatabase,
+          _$V6Database,
           $LineupTemplatesTable,
           LineupTemplate,
           $$LineupTemplatesTableFilterComposer,
@@ -6361,7 +5416,7 @@ class $$LineupTemplatesTableTableManager
           PrefetchHooks Function({bool playId, bool lineupTemplateSlotsRefs})
         > {
   $$LineupTemplatesTableTableManager(
-    _$AppDatabase db,
+    _$V6Database db,
     $LineupTemplatesTable table,
   ) : super(
         TableManagerState(
@@ -6466,7 +5521,7 @@ class $$LineupTemplatesTableTableManager
 
 typedef $$LineupTemplatesTableProcessedTableManager =
     ProcessedTableManager<
-      _$AppDatabase,
+      _$V6Database,
       $LineupTemplatesTable,
       LineupTemplate,
       $$LineupTemplatesTableFilterComposer,
@@ -6498,7 +5553,7 @@ typedef $$LineupTemplateSlotsTableUpdateCompanionBuilder =
 final class $$LineupTemplateSlotsTableReferences
     extends
         BaseReferences<
-          _$AppDatabase,
+          _$V6Database,
           $LineupTemplateSlotsTable,
           LineupTemplateSlot
         > {
@@ -6508,7 +5563,7 @@ final class $$LineupTemplateSlotsTableReferences
     super.$_typedResult,
   );
 
-  static $LineupTemplatesTable _templateIdTable(_$AppDatabase db) => db
+  static $LineupTemplatesTable _templateIdTable(_$V6Database db) => db
       .lineupTemplates
       .createAlias('lineup_template_slots__template_id__lineup_templates__id');
 
@@ -6526,7 +5581,7 @@ final class $$LineupTemplateSlotsTableReferences
     );
   }
 
-  static $PersonsTable _personIdTable(_$AppDatabase db) =>
+  static $PersonsTable _personIdTable(_$V6Database db) =>
       db.persons.createAlias('lineup_template_slots__person_id__persons__id');
 
   $$PersonsTableProcessedTableManager? get personId {
@@ -6545,7 +5600,7 @@ final class $$LineupTemplateSlotsTableReferences
 }
 
 class $$LineupTemplateSlotsTableFilterComposer
-    extends Composer<_$AppDatabase, $LineupTemplateSlotsTable> {
+    extends Composer<_$V6Database, $LineupTemplateSlotsTable> {
   $$LineupTemplateSlotsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -6616,7 +5671,7 @@ class $$LineupTemplateSlotsTableFilterComposer
 }
 
 class $$LineupTemplateSlotsTableOrderingComposer
-    extends Composer<_$AppDatabase, $LineupTemplateSlotsTable> {
+    extends Composer<_$V6Database, $LineupTemplateSlotsTable> {
   $$LineupTemplateSlotsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -6687,7 +5742,7 @@ class $$LineupTemplateSlotsTableOrderingComposer
 }
 
 class $$LineupTemplateSlotsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $LineupTemplateSlotsTable> {
+    extends Composer<_$V6Database, $LineupTemplateSlotsTable> {
   $$LineupTemplateSlotsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -6756,7 +5811,7 @@ class $$LineupTemplateSlotsTableAnnotationComposer
 class $$LineupTemplateSlotsTableTableManager
     extends
         RootTableManager<
-          _$AppDatabase,
+          _$V6Database,
           $LineupTemplateSlotsTable,
           LineupTemplateSlot,
           $$LineupTemplateSlotsTableFilterComposer,
@@ -6769,7 +5824,7 @@ class $$LineupTemplateSlotsTableTableManager
           PrefetchHooks Function({bool templateId, bool personId})
         > {
   $$LineupTemplateSlotsTableTableManager(
-    _$AppDatabase db,
+    _$V6Database db,
     $LineupTemplateSlotsTable table,
   ) : super(
         TableManagerState(
@@ -6881,7 +5936,7 @@ class $$LineupTemplateSlotsTableTableManager
 
 typedef $$LineupTemplateSlotsTableProcessedTableManager =
     ProcessedTableManager<
-      _$AppDatabase,
+      _$V6Database,
       $LineupTemplateSlotsTable,
       LineupTemplateSlot,
       $$LineupTemplateSlotsTableFilterComposer,
@@ -6894,17 +5949,15 @@ typedef $$LineupTemplateSlotsTableProcessedTableManager =
       PrefetchHooks Function({bool templateId, bool personId})
     >;
 
-class $AppDatabaseManager {
-  final _$AppDatabase _db;
-  $AppDatabaseManager(this._db);
+class $V6DatabaseManager {
+  final _$V6Database _db;
+  $V6DatabaseManager(this._db);
   $$PersonsTableTableManager get persons =>
       $$PersonsTableTableManager(_db, _db.persons);
+  $$PersonPositionsV6TableTableManager get personPositionsV6 =>
+      $$PersonPositionsV6TableTableManager(_db, _db.personPositionsV6);
   $$PlaysTableTableManager get plays =>
       $$PlaysTableTableManager(_db, _db.plays);
-  $$PersonPositionsTableTableManager get personPositions =>
-      $$PersonPositionsTableTableManager(_db, _db.personPositions);
-  $$PlayPositionsTableTableManager get playPositions =>
-      $$PlayPositionsTableTableManager(_db, _db.playPositions);
   $$LineupSlotsTableTableManager get lineupSlots =>
       $$LineupSlotsTableTableManager(_db, _db.lineupSlots);
   $$MainMembersTableTableManager get mainMembers =>
