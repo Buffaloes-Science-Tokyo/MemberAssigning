@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "kick_members (Windows, Debug)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "windows",
+      "flutterMode": "debug"
+    },
+    {
+      "name": "kick_members (Chrome, Debug)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "chrome",
+      "flutterMode": "debug",
+      "args": ["--web-port", "5959"]
+    },
+    {
+      "name": "kick_members (Windows, Profile)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "windows",
+      "flutterMode": "profile"
+    }
+  ]
+}

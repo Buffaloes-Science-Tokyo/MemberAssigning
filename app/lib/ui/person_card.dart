@@ -3,10 +3,18 @@ import 'package:flutter/material.dart';
 import '../data/database.dart';
 
 class PersonCard extends StatelessWidget {
-  const PersonCard({super.key, required this.person, this.onTap});
+  const PersonCard({
+    super.key,
+    required this.person,
+    this.onTap,
+    this.onDragStarted,
+    this.onDragEnd,
+  });
 
   final Person person;
   final VoidCallback? onTap;
+  final VoidCallback? onDragStarted;
+  final VoidCallback? onDragEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +24,6 @@ class PersonCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Container(
-          width: 96,
           padding: const EdgeInsets.all(8),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -39,11 +46,6 @@ class PersonCard extends StatelessWidget {
       ),
     );
 
-    if (person.isOut) {
-      // Absent players can be inspected/edited but not dragged onto the board.
-      return card;
-    }
-
     return Draggable<Person>(
       data: person,
       feedback: Material(
@@ -52,6 +54,8 @@ class PersonCard extends StatelessWidget {
         child: card,
       ),
       childWhenDragging: Opacity(opacity: 0.3, child: card),
+      onDragStarted: onDragStarted,
+      onDragEnd: onDragEnd == null ? null : (_) => onDragEnd!(),
       child: card,
     );
   }

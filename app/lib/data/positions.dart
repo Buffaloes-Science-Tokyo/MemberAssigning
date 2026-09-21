@@ -3,7 +3,17 @@
 /// This ordering matches `algorithm.py`'s `pos` indices exactly, so seed
 /// data and any future ported algorithm line up without remapping.
 const List<String> kPositionLabels = [
-  '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'K',
+  '10',
+  '9',
+  '8',
+  '7',
+  '6',
+  '5',
+  '4',
+  '3',
+  '2',
+  '1',
+  'K',
 ];
 
 const int kPositionCount = 11;

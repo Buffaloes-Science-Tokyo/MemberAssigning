@@ -15,14 +15,25 @@ class PersonSettingsDialog extends StatefulWidget {
 
   final Person person;
   final Set<int> initialPositions;
-  final void Function(bool isOut, Set<int> positions) onSave;
+  final void Function(
+    String name,
+    int? gen,
+    bool isOut,
+    bool guest,
+    Set<int> positions,
+  ) onSave;
 
   @override
   State<PersonSettingsDialog> createState() => _PersonSettingsDialogState();
 }
 
 class _PersonSettingsDialogState extends State<PersonSettingsDialog> {
+  late final TextEditingController _nameController =
+      TextEditingController(text: widget.person.name);
+  late final TextEditingController _genController =
+      TextEditingController(text: widget.person.gen?.toString() ?? '');
   late bool _isOut = widget.person.isOut;
+  late bool _guest = widget.person.guest;
   final Set<int> _positions = {};
 
   @override
@@ -32,15 +43,46 @@ class _PersonSettingsDialogState extends State<PersonSettingsDialog> {
   }
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _genController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(widget.person.name),
+      title: const Text('Edit person'),
       content: SizedBox(
         width: 320,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: 'Name'),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _genController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: '期 (gen)'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Checkbox(
+                  value: _guest,
+                  onChanged: (value) =>
+                      setState(() => _guest = value ?? false),
+                ),
+                const Text('GUEST'),
+              ],
+            ),
+            const SizedBox(height: 8),
             SwitchListTile(
               title: const Text('OUT (absent)'),
               value: _isOut,
@@ -75,7 +117,14 @@ class _PersonSettingsDialogState extends State<PersonSettingsDialog> {
         ),
         FilledButton(
           onPressed: () {
-            widget.onSave(_isOut, _positions);
+            final gen = int.tryParse(_genController.text.trim());
+            widget.onSave(
+              _nameController.text.trim(),
+              gen,
+              _isOut,
+              _guest,
+              _positions,
+            );
             Navigator.of(context).pop();
           },
           child: const Text('Save'),
