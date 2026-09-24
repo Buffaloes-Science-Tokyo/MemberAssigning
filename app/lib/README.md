@@ -14,18 +14,22 @@ lib/
 │   └── positions.dart
 ├── logic/
 │   └── auto_fill.dart
+├── sync/
+│   ├── snapshot.dart
+│   └── sync_service.dart
 └── ui/
     ├── lineup_board_page.dart
     ├── person_card.dart
     ├── person_settings_dialog.dart
-    └── play_settings_dialog.dart
+    ├── play_settings_dialog.dart
+    └── sync_button.dart
 ```
 
 ## `main.dart`
 
-App entry point. Creates an `AppDatabase`, waits on `db.seedIfEmpty()` via a
-`FutureBuilder` (showing a spinner until the seed data is loaded), then hands
-off to `LineupBoardPage`.
+App entry point. Creates an `AppDatabase`, waits on `db.seedIfEmpty()` and
+`SyncService.create(db)` via a `FutureBuilder` (showing a spinner until
+they're done), then hands off to `LineupBoardPage`.
 
 ## `data/database.dart`
 
@@ -200,5 +204,31 @@ LineupBoardPage ── drag PersonCard → _PositionSlot ── db.assignSlot()
                                                     └ db.setPersonPositions()
 ```
 
-Everything is offline: no network calls, SQLite (via `drift_flutter`) is the
-only persistence layer, seeded once from the bundled JSON asset.
+Everything works offline: SQLite (via `drift_flutter`) is the only
+persistence layer the UI talks to, seeded once from the bundled JSON asset.
+The only network call is the manual Sync button (see `sync/` below).
+
+## `sync/`
+
+Manual, whole-database sync with the server (`/api/sync` on Vercel, stored
+in Neon Postgres — see the repo root `README.md`).
+
+- **`snapshot.dart`** — `exportSnapshot()` / `importSnapshot()` extension on
+  `AppDatabase`: every table as a JSON map (`{"persons": [...], ...}`) in
+  each Drift row class's `toJson()` shape; import replaces all local rows.
+- **`sync_service.dart`** — `SyncService` (a `ChangeNotifier`). The server
+  keeps one snapshot plus a version counter; locally we keep (in
+  `shared_preferences`) the version last synced and a sha256 of the
+  database as it was then. `sync()` then decides:
+  only the server changed → pull; only this device → push; neither →
+  up to date; both → throws `SyncConflict` and the UI asks which side to
+  keep (`resolve(conflict, keepLocal: ...)`). Uploads are optimistic-locked
+  on the version, so a race with another device surfaces as a 409.
+  `hasLocalChanges` is kept up to date from `db.tableUpdates()`.
+
+## `ui/sync_button.dart`
+
+`SyncActions` — the AppBar's Sync button (dot badge = unsynced local
+changes, tooltip = last sync time) and a cloud button that opens the sync
+settings (sync key, and server URL for non-web builds). Shows the result
+or error as a SnackBar and the conflict dialog when needed.

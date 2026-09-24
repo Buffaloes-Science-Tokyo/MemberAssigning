@@ -3,14 +3,17 @@ import 'package:flutter/material.dart';
 import '../data/database.dart';
 import '../data/positions.dart';
 import '../logic/auto_fill.dart';
+import '../sync/sync_service.dart';
 import 'person_card.dart';
 import 'person_settings_dialog.dart';
 import 'play_settings_dialog.dart';
+import 'sync_button.dart';
 
 class LineupBoardPage extends StatefulWidget {
-  const LineupBoardPage({super.key, required this.db});
+  const LineupBoardPage({super.key, required this.db, required this.sync});
 
   final AppDatabase db;
+  final SyncService sync;
 
   @override
   State<LineupBoardPage> createState() => _LineupBoardPageState();
@@ -43,7 +46,10 @@ class _LineupBoardPageState extends State<LineupBoardPage> {
         final plays = playsSnapshot.data ?? const <Play>[];
         final play = _resolvePlay(plays);
         return Scaffold(
-          appBar: AppBar(title: const Text('Kick Members')),
+          appBar: AppBar(
+            title: const Text('Kick Members'),
+            actions: [SyncActions(sync: widget.sync)],
+          ),
           body: play == null
               ? const Center(child: CircularProgressIndicator())
               : StreamBuilder<List<String>>(

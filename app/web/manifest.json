@@ -1,12 +1,12 @@
 {
-    "name": "kick_members",
-    "short_name": "kick_members",
+    "name": "Kick Members",
+    "short_name": "Kick Members",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "description": "Kick play lineup board",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {
