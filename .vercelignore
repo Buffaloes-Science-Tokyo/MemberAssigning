@@ -3,3 +3,4 @@ app/.dart_tool
 app/android
 app/ios
 test
+.local-db

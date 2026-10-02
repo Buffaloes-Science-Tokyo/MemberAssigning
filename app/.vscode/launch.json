@@ -6,7 +6,10 @@
       "request": "launch",
       "type": "dart",
       "deviceId": "windows",
-      "flutterMode": "debug"
+      "flutterMode": "debug",
+      "args": [
+        "--dart-define=SYNC_SERVER_URL=http://localhost:8787"
+      ]
     },
     {
       "name": "kick_members (Chrome, Debug)",
@@ -14,7 +17,12 @@
       "type": "dart",
       "deviceId": "chrome",
       "flutterMode": "debug",
-      "args": ["--web-port", "5959", "--cross-origin-isolation"]
+      "args": [
+        "--web-port",
+        "5959",
+        "--cross-origin-isolation",
+        "--dart-define=SYNC_SERVER_URL=http://localhost:8787"
+      ]
     },
     {
       "name": "kick_members (Windows, Profile)",

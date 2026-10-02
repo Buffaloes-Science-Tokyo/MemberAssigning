@@ -50,3 +50,18 @@ npm install && npm test             # API のテスト (PGlite を使うので D
 bash scripts/vercel-build.sh        # 本番ビルド (app/build/web)
 npx vercel dev                      # API 込みでローカル実行 (要 .env に DATABASE_URL / SYNC_TOKEN)
 ```
+
+### ローカル DB で同期を試す (Neon 不要)
+
+```sh
+npm run dev                # http://localhost:8787/api/sync  (データは .local-db/ に保存)
+npm run dev -- --memory    # 毎回まっさらな DB
+cd app && flutter run -d chrome --dart-define=SYNC_SERVER_URL=http://localhost:8787
+```
+
+- DB は PGlite (Node 内で動く Postgres)。本番と同じ `api/_lib/store.js` を使う。
+- Sync key は `dev` (環境変数 `SYNC_TOKEN` で変更可)。アプリの雲アイコンから入力する。
+- VS Code の Debug 構成 (`app/.vscode/launch.json`) には `SYNC_SERVER_URL` 指定済み。
+- 設定画面で Server URL を保存済みだとそちらが優先されるので、空欄の保存ではなく
+  ローカル URL を入れるか、ブラウザのサイトデータを消す。
+- DB をリセットするには `.local-db/` を削除。

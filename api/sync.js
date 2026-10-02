@@ -4,33 +4,18 @@
 //
 // Both require `Authorization: Bearer <SYNC_TOKEN>`.
 // Env: DATABASE_URL (Neon connection string), SYNC_TOKEN.
-import { timingSafeEqual } from 'node:crypto';
+// For local development without Neon, see scripts/dev-server.mjs.
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import ws from 'ws';
 
-import { BadRequestError, ConflictError, ensureSchema, readSnapshot, writeSnapshot } from './_lib/store.js';
+import { syncHandlers } from './_lib/handler.js';
+import { ensureSchema } from './_lib/store.js';
 
 neonConfig.webSocketConstructor = ws;
 
 let schemaReady = null;
 
-export async function GET(request) {
-  return handle(request, (client) => readSnapshot(client));
-}
-
-export async function PUT(request) {
-  return handle(request, async (client) => {
-    const body = await request.json().catch(() => {
-      throw new BadRequestError('invalid JSON');
-    });
-    return { version: await writeSnapshot(client, body ?? {}) };
-  });
-}
-
-async function handle(request, work) {
-  const denied = checkAuth(request);
-  if (denied) return denied;
-
+async function withNeonClient(work) {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   let client;
   try {
@@ -40,32 +25,19 @@ async function handle(request, work) {
       throw e;
     });
     await schemaReady;
-    return json(await work(client));
-  } catch (e) {
-    if (e instanceof ConflictError) return json({ error: 'conflict', version: e.version }, 409);
-    if (e instanceof BadRequestError) return json({ error: e.message }, 400);
-    console.error(e);
-    return json({ error: 'internal error' }, 500);
+    return await work(client);
   } finally {
     client?.release();
     await pool.end();
   }
 }
 
-function checkAuth(request) {
-  const expected = process.env.SYNC_TOKEN;
-  if (!expected) return json({ error: 'SYNC_TOKEN is not configured on the server' }, 500);
-  const header = request.headers.get('authorization') ?? '';
-  const given = header.startsWith('Bearer ') ? header.slice(7) : '';
-  const a = Buffer.from(given);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length || !timingSafeEqual(a, b)) return json({ error: 'unauthorized' }, 401);
-  return null;
+const handlers = syncHandlers(withNeonClient);
+
+export function GET(request) {
+  return handlers.GET(request);
 }
 
-function json(body, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
-  });
+export function PUT(request) {
+  return handlers.PUT(request);
 }
