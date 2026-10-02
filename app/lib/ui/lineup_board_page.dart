@@ -289,6 +289,8 @@ const int _kRosterPageSize = _kRosterRows * _kRosterCols;
 enum _RosterFilter {
   all('ALL'),
   in_('IN'),
+  roster('ROSTER'),
+  active('ACTIVE'),
   guest('GUEST');
 
   const _RosterFilter(this.label);
@@ -372,19 +374,27 @@ class _BoardState extends State<_Board> {
   Map<int, Person> get peopleById => widget.peopleById;
 
   /// The roster cards to show for the current [_rosterFilter]: everyone,
-  /// only people who are IN and eligible for at least one position, or only
-  /// guests.
+  /// non-guests who are IN and eligible for at least one position, non-guests
+  /// eligible for at least one position, all non-guests, or only guests.
   List<Person> get _filteredPeople {
+    bool hasPositions(Person person) =>
+        positionsByPerson[person.id]?.isNotEmpty ?? false;
+
     switch (_rosterFilter) {
       case _RosterFilter.all:
         return people;
       case _RosterFilter.in_:
         return [
           for (final person in people)
-            if (!person.isOut &&
-                (positionsByPerson[person.id]?.isNotEmpty ?? false))
-              person,
+            if (!person.isOut && !person.guest && hasPositions(person)) person,
         ];
+      case _RosterFilter.roster:
+        return [
+          for (final person in people)
+            if (!person.guest && hasPositions(person)) person,
+        ];
+      case _RosterFilter.active:
+        return [for (final person in people) if (!person.guest) person];
       case _RosterFilter.guest:
         return [for (final person in people) if (person.guest) person];
     }
